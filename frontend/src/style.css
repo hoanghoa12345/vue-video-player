@@ -1,0 +1,21 @@
+body {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+  'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+:root {
+  --container-width: auto
+}
+.container {
+  margin: 0 auto;
+  padding: 0 1rem;
+  width: var(--container-width)
+}
+
+@media(min-width: 1024px) {
+  :root {
+      --container-width: 80rem
+  }
+}

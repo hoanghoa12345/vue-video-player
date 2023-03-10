@@ -1,0 +1,36 @@
+{
+  "name": "video-api",
+  "version": "1.0.0",
+  "description": "Video Api for vue video player frontend",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "video-api"
+  ],
+  "author": "HoangHoa",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bree": "^9.1.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "express-rate-limit": "^6.7.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "graphql": "^16.6.0",
+    "graphql-helix": "^1.13.0",
+    "graphql-yoga": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.7.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
