@@ -1,4 +1,4 @@
-# Vue 3 and Element Plus - MyClip.Vn Clone
+# Vue 3 and Element Plus - Vue Video Player
 
 ## Require
 
