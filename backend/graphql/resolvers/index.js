@@ -52,6 +52,7 @@ const graphqlResolvers = {
           duration,
           thumbnail,
           filePath,
+          privacy,
         } = args.video;
         const video = new Video({
           title,
@@ -60,6 +61,7 @@ const graphqlResolvers = {
           duration,
           thumbnail,
           filePath,
+          privacy,
         });
         const newVideo = await video.save();
         return newVideo;

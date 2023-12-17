@@ -307,6 +307,7 @@ const handleSaveVideo = () => {
   // - filePath
   // - privacy
   // - category
+  formdata.privacy = 0;
 
   execute({ videoInput: formdata });
 

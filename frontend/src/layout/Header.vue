@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Setting, Search, Upload } from "@element-plus/icons-vue";
+import { Search, Upload, MoreFilled } from "@element-plus/icons-vue";
 import { ref, watch, computed } from "vue";
 import { useMutation, useQuery } from "villus";
 import { useRouter } from "vue-router";
@@ -118,19 +118,23 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
       mode="horizontal"
       :ellipsis="false"
       menu-trigger="click"
-      class="item-center"
+      class="items-center"
       @select="handleSelectMenu">
       <el-menu-item index="0">
-        <router-link to="/">
-          <img
-            width="122"
-            height="30"
-            src="http://myclip.vn/images/logo8.png"
-            alt="logo" />
+        <router-link to="/" class="logo__link">
+          <div class="flex items-center logo">
+            <img
+              class="logo__image"
+              width="32"
+              height="32"
+              src="/images/logo.svg"
+              alt="logo" />
+            <p class="logo__text">MyClip</p>
+          </div>
         </router-link>
       </el-menu-item>
       <div class="flex-grow" />
-      <div index="1">
+      <div index="1" class="search-box">
         <el-autocomplete
           ref="autocompleteRef"
           v-model="state"
@@ -146,9 +150,9 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
         index="menu-upload">
         <el-icon><Upload /></el-icon>
       </el-menu-item>
-      <el-sub-menu index="menu">
+      <el-sub-menu index="menu" class="header-menu">
         <template #title>
-          <el-icon> <Setting /> </el-icon>
+          <el-icon class="header-menu__icon"> <MoreFilled /> </el-icon>
         </template>
         <el-menu-item v-if="userStore.name" index="menu-login"
           >Hello, {{ userStore.name }}!</el-menu-item
@@ -172,13 +176,58 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
 </template>
 
 <style>
+.flex {
+  display: flex;
+}
+.logo__link {
+  text-decoration: none;
+}
+.logo {
+  gap: 4px;
+}
+.logo__image {
+  width: 32px;
+  height: 32px;
+}
+.logo__text {
+  font-size: 20px;
+  font-weight: 600;
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
 .flex-grow {
   flex-grow: 1;
 }
-.item-center {
+.items-center {
   align-items: center;
 }
 .el-menu-item * {
   vertical-align: middle;
+}
+.search-box {
+  widows: 300px;
+}
+.search-box .el-autocomplete {
+  width: 100%;
+}
+.search-box .el-input__wrapper {
+  border-radius: 10px;
+  background-color: var(--el-disabled-bg-color);
+  box-shadow: none;
+  height: 30px;
+}
+.search-box .el-input__icon {
+  width: 20px;
+  height: 20px;
+}
+.search-box .el-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.header-menu .el-sub-menu__title {
+  border-bottom: none;
+}
+.header-menu__icon {
+  rotate: 90deg;
 }
 </style>

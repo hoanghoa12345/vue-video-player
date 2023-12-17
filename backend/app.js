@@ -99,10 +99,13 @@ app.post("/api/upload_test", upload.single("file"), async (req, res) => {
 
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   console.log("[info] file uploaded: ", req.file.originalname);
-
+  const originalFilename = req.file.originalname;
+  const fileExtension = originalFilename.split(".").pop();
+  const fileNameOnly = originalFilename.replace(fileExtension, "");
+  const filename = fileNameOnly.replace(/(\W+)/gi, "-") + "." + fileExtension;
   const videoData = req.file.buffer;
 
-  const inputFileName = `./tmp/${req.file.originalname}`;
+  const inputFileName = `./tmp/${filename}`;
   const outputFileName = uuidv4();
   const hlsFolderPath = "./uploads/" + outputFileName;
   const exportHlsPath = `./uploads/${outputFileName}/${outputFileName}.m3u8`;
@@ -129,7 +132,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     message: "File uploaded: " + exportHlsPath,
     filePath: `${outputFileName}/${outputFileName}.m3u8`,
     fileDir: outputFileName,
-    tmpFile: req.file.originalname,
+    tmpFile: filename,
     jobId: newJob.id,
   });
 });

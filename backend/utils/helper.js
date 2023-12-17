@@ -56,4 +56,5 @@ const checkAuth = (token) => {
     },
   });
 };
+
 export { getToken, JWT_SECRET, checkAuth, getRefreshToken, checkRefreshToken };

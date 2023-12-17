@@ -14,7 +14,7 @@ const graphqlSchema = createSchema({
       privacy: Int!
       thumbnail: String!
       createdAt: String!
-      category: Category!
+      category: Category
       views: Int!
     }
     type User {
@@ -49,6 +49,7 @@ const graphqlSchema = createSchema({
       duration: String!
       thumbnail: String!
       uploadedBy: String!
+      privacy: Int!
     }
 
     type Query {
