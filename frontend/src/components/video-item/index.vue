@@ -26,8 +26,7 @@ const props = defineProps<{ video: Video }>();
       :aria-label="props.video.title"
       :title="props.video.title">
       <img
-        class=""
-        width="280"
+        class="thumbnail__image"
         :src="
           props.video.thumbnail
             ? `${backendUrl}/image/${props.video.thumbnail}`
@@ -62,6 +61,14 @@ const props = defineProps<{ video: Video }>();
   </div>
 </template>
 <style scoped>
+.thumbnail {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.thumbnail__image {
+  width: 100%;
+}
 img.placeholder {
   -webkit-filter: grayscale(100%);
   filter: grayscale(100%);

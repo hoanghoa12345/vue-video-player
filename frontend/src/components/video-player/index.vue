@@ -17,7 +17,17 @@ const refVideo: Ref<HTMLMediaElement | null> = ref(null);
 
 const init = () => {
   if (refVideo.value?.canPlayType("application/vnd.apple.mpegurl")) {
-    refVideo.value?.play();
+    refVideo.value.src = props.src
+    const promise = refVideo.value?.play();
+    if (promise !== undefined) {
+      promise
+        .then((_) => {
+          // console.log("Autoplay started!");
+        })
+        .catch((error) => {
+          // console.log("Autoplay was prevented", error);
+        });
+    }
   } else if (Hls.isSupported()) {
     const hls = new Hls();
 

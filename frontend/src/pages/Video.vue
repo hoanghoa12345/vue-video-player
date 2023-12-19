@@ -2,15 +2,17 @@
 import VideoPlayer from "@/components/video-player/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useQuery, useMutation } from "villus";
-import { onMounted, onUpdated, watch } from "vue";
+import { onMounted, onUpdated, ref, watch } from "vue";
 import { GetVideo, UpdateViewVideo, VideosRelated } from "@/services/graphql";
 import { backendUrl, getVideoPath } from "@/services/api";
-import defaultThumbnailVideo from "@/assets/thumbnail-placeholder.webp"
-import { useTitle } from '@vueuse/core'
+import defaultThumbnailVideo from "@/assets/thumbnail-placeholder.webp";
+import { useTitle } from "@vueuse/core";
+import _ from "lodash-es";
 
 const router = useRouter();
 const route = useRoute();
-const title = useTitle()
+const title = useTitle();
+const showMore = ref<boolean>(false);
 
 const {
   data,
@@ -57,7 +59,7 @@ onUpdated(() => {
 });
 
 watch(data, (data) => {
-  title.value = `${data.video.title} | MyClip`
+  title.value = `${data.video.title} | MyClip`;
   navigator.mediaSession.metadata = new MediaMetadata({
     title: data.video.title,
     artist: data.video.uploadedBy.name,
@@ -87,7 +89,21 @@ watch(data, (data) => {
         <VideoPlayer :src="getVideoPath(data.video.filePath)" />
         <div>
           <h3 class="video-title">{{ data.video.title }}</h3>
-          <span class="video-description">{{ data.video.description }}</span>
+          <span v-if="!showMore" class="video-description"
+            >{{ _.truncate(data.video.description, { length: 200 })
+            }}<span
+              role="button"
+              v-show="data.video.description.length > 200"
+              @click="showMore = true"
+              >View more</span
+            ></span
+          >
+          <span v-else class="video-description"
+            >{{ data.video.description
+            }}<span role="button" @click="showMore = false"
+              >View less</span
+            ></span
+          >
         </div>
       </div>
 
@@ -115,7 +131,8 @@ watch(data, (data) => {
         </router-link>
         <div style="margin-left: 1rem">
           <span class="video-thumbnail__title">{{ video.title }}</span>
-          <div class="el-link el-link--info video-info video-thumbnail__description">
+          <div
+            class="el-link el-link--info video-info video-thumbnail__description">
             <p>{{ video.uploadedBy.name }}</p>
             <span>{{ video.views }} views</span>
           </div>
@@ -137,7 +154,7 @@ watch(data, (data) => {
   margin: 10px 0;
 }
 .video-description {
-  font-size: var(--el-font-size-medium);
+  font-size: var(--el-font-size-small);
   color: var(--el-text-color-regular);
   font-weight: var(--el-font-weight-primary);
 }
@@ -152,7 +169,7 @@ watch(data, (data) => {
 .video-thumbnail__description {
   font-size: 12px;
 }
-.video-thumbnail__description>p {
+.video-thumbnail__description > p {
   margin-block-start: 0.5rem;
   margin-block-end: 0.5rem;
 }
