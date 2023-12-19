@@ -1,5 +1,5 @@
 <template>
-  <el-steps :active="active" finish-status="success">
+  <el-steps :active="active" finish-status="success" class="step-upload">
     <el-step title="Upload Video" :icon="Upload" />
     <el-step title="Title" :icon="Edit" />
     <el-step title="Thumbnail" :icon="Picture" />
@@ -35,7 +35,10 @@
         <el-input v-model="formdata.title" type="text" />
       </el-form-item>
       <el-form-item label="Description" prop="description">
-        <el-input v-model="formdata.description" type="textarea" />
+        <el-input
+          v-model="formdata.description"
+          type="textarea"
+          :autosize="{ minRows: 8, maxRows: 12 }" />
       </el-form-item>
     </el-form>
     <!-- <VideoPlayer
@@ -47,7 +50,8 @@
       controls
       muted="true"
       :autoplay="false"
-      ref="refVideo">
+      ref="refVideo"
+      title="Video preview">
       <source
         v-if="videoState.tmpFile"
         :src="`${backendUrl}/api/video/tmpfile/${videoState.tmpFile}`"
@@ -55,9 +59,10 @@
     </video>
   </div>
 
-  <div v-if="active === 2">
-    <span style="margin: 4px">Choose thumbnail:</span>
+  <div v-if="active === 2" class="step-thumbnail">
+    <span class="step-thumbnail__label-text">Choose thumbnail:</span>
     <el-upload
+      class="step-thumbnail__upload"
       v-model:file-list="thumbnailList"
       :action="uploadThumbnailUrl"
       list-type="picture-card"
@@ -103,7 +108,7 @@
       active === 2 ? "Upload" : "Next step"
     }}</el-button>
   </div>
-  <code>Step: {{ active }}</code>
+  <!-- <code>Step: {{ active }}</code> -->
 </template>
 
 <script lang="ts" setup>
@@ -295,7 +300,7 @@ const showErrorMsg: UploadProps["onError"] = (
 };
 
 const handleSaveVideo = () => {
-  console.log("[submited] submited to save");
+  // console.log("[submited] submited to save");
   showNotification("Save video success", "Success");
 
   // ==== Video Info ====
@@ -307,11 +312,11 @@ const handleSaveVideo = () => {
   // - filePath
   // - privacy
   // - category
-  formdata.privacy = 0;
+  formdata.privacy = 1;
 
   execute({ videoInput: formdata });
 
-  console.log("[info] form data", formdata);
+  // console.log("[info] form data", formdata);
 };
 
 const next = () => {

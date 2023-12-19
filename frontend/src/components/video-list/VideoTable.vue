@@ -7,9 +7,12 @@ import _ from "lodash-es";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { backendUrl } from "@/services/api";
+import { Video } from "@/utils/types";
 
 dayjs.extend(duration);
 const dialogVisible = ref(false);
+const editVideoModal = ref<boolean>(false);
+const videoData = ref<Video>();
 const formRef = ref<FormInstance>();
 const form = reactive({
   title: "",
@@ -112,6 +115,11 @@ const rules = reactive<FormRules>({
     { required: true, message: "Please input duration field", trigger: "blur" },
   ],
 });
+const editVideo = (video: Video) => {
+  // console.log(video.title);
+  videoData.value = video;
+  editVideoModal.value = true;
+};
 </script>
 <template>
   <div>
@@ -121,21 +129,29 @@ const rules = reactive<FormRules>({
         <el-col
           v-for="video in data?.videos"
           :key="video._id"
+          :xl="4"
           :lg="4"
-          :md="8"
-          :sm="12"
-          :xs="24">
-          <el-card :body-style="{ padding: '0px' }" shadow="hover">
+          :md="6"
+          :sm="10"
+          :xs="12">
+          <el-card
+            class="video-table__card"
+            :body-style="{ padding: '0px' }"
+            shadow="hover">
             <img
               :src="`${backendUrl}/image/${video.thumbnail}`"
               class="image" />
             <div style="padding: 14px">
-              <span>{{ _.truncate(video.title) }}</span>
+              <span class="video-table__title">{{ video.title }}</span>
               <div class="bottom clearfix">
                 <time class="time">{{
                   dayjs.duration(video.duration * 1000).format("mm:ss")
                 }}</time>
-                <el-link type="primary" class="edit-button" :underline="false"
+                <el-link
+                  type="primary"
+                  class="edit-button"
+                  :underline="false"
+                  @click="editVideo(video)"
                   >Edit</el-link
                 >
               </div>
@@ -195,6 +211,35 @@ const rules = reactive<FormRules>({
             </el-button>
           </span>
         </template>
+      </el-dialog>
+      <el-dialog
+        :title="videoData?.title"
+        v-model="editVideoModal"
+        :draggable="true"
+        width="80%">
+        <el-tabs
+          tab-position="left"
+          type="border-card"
+          class="video-edit__tabs">
+          <el-tab-pane label="Title"
+            ><p class="video-table__title">Title</p></el-tab-pane
+          >
+          <el-tab-pane label="Video"
+            ><p class="video-table__title">Video</p></el-tab-pane
+          >
+          <el-tab-pane label="Visible"
+            ><p class="video-table__title">Visible</p></el-tab-pane
+          >
+          <el-tab-pane label="Thumbnail">
+            <p class="video-table__title">Thumbnail</p>
+            <div class="video-edit__image-thumbnail">
+              <el-image
+                style="width: 20rem; height: 15rem"
+                :src="`${backendUrl}/image/${videoData?.thumbnail}`"
+                fit="contain" />
+            </div>
+          </el-tab-pane>
+        </el-tabs>
       </el-dialog>
     </div>
   </div>

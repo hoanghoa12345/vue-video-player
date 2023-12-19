@@ -5,9 +5,12 @@ import { useQuery, useMutation } from "villus";
 import { onMounted, onUpdated, watch } from "vue";
 import { GetVideo, UpdateViewVideo, VideosRelated } from "@/services/graphql";
 import { backendUrl, getVideoPath } from "@/services/api";
+import defaultThumbnailVideo from "@/assets/thumbnail-placeholder.webp"
+import { useTitle } from '@vueuse/core'
 
 const router = useRouter();
 const route = useRoute();
+const title = useTitle()
 
 const {
   data,
@@ -39,7 +42,7 @@ const variables = {
 
 onMounted(() => {
   execute(variables);
-  console.log(updateView);
+  // console.log(updateView);
   window.scrollTo(0, 0);
 });
 
@@ -54,6 +57,7 @@ onUpdated(() => {
 });
 
 watch(data, (data) => {
+  title.value = `${data.video.title} | MyClip`
   navigator.mediaSession.metadata = new MediaMetadata({
     title: data.video.title,
     artist: data.video.uploadedBy.name,
@@ -89,7 +93,7 @@ watch(data, (data) => {
 
       <el-result v-if="error" title="404" sub-title="Sorry, request error">
         <template #icon>
-          <el-image src="/src/assets/thumbnail-placeholder.webp" />
+          <el-image :src="defaultThumbnailVideo" />
         </template>
         <template #extra>
           <el-button type="primary" @click="router.back()">Back</el-button>
@@ -103,15 +107,15 @@ watch(data, (data) => {
         :key="video._id">
         <router-link :to="{ name: 'Video', params: { id: video._id } }">
           <img
-            class=""
-            height="120"
+            class="video-thumbnail__image"
+            height="100"
             :src="backendUrl + '/image/' + video.thumbnail"
-            src-data="/src/assets/thumbnail-placeholder.webp"
+            :src-data="defaultThumbnailVideo"
             :alt="video.title" />
         </router-link>
         <div style="margin-left: 1rem">
-          <span>{{ video.title }}</span>
-          <div class="el-link el-link--info video-info">
+          <span class="video-thumbnail__title">{{ video.title }}</span>
+          <div class="el-link el-link--info video-info video-thumbnail__description">
             <p>{{ video.uploadedBy.name }}</p>
             <span>{{ video.views }} views</span>
           </div>
@@ -141,5 +145,19 @@ watch(data, (data) => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+.video-thumbnail__title {
+  font-size: 14px;
+}
+.video-thumbnail__description {
+  font-size: 12px;
+}
+.video-thumbnail__description>p {
+  margin-block-start: 0.5rem;
+  margin-block-end: 0.5rem;
+}
+.video-thumbnail__image {
+  height: 100px;
+  border-radius: 0.25rem;
 }
 </style>

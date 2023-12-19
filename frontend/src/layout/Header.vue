@@ -37,7 +37,7 @@ const { data } = useQuery({
 });
 
 const querySearchAsync = (queryString: string, cb: (arg: any) => void) => {
-  console.log(queryString);
+  // console.log(queryString);
   const results = queryString
     ? links.value.filter(createFilter(queryString))
     : links.value;
@@ -72,7 +72,7 @@ const keySpaceHandle = (e: KeyboardEvent) => {
 };
 
 const handleSelectMenu = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
+  // console.log(key, keyPath);
   switch (key) {
     case "menu-login":
       if (userStore.name) router.push({ name: "VideoTable" });
@@ -113,12 +113,12 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
 </script>
 
 <template>
-  <el-header>
+  <el-header class="header">
     <el-menu
       mode="horizontal"
       :ellipsis="false"
       menu-trigger="click"
-      class="items-center"
+      class="container items-center header-logo"
       @select="handleSelectMenu">
       <el-menu-item index="0">
         <router-link to="/" class="logo__link">
@@ -176,14 +176,21 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
 </template>
 
 <style>
+.el-menu--horizontal {
+  border-bottom: none;
+}
 .flex {
   display: flex;
+}
+.header-logo.el-menu--horizontal > .el-menu-item.is-active {
+  border-bottom: none;
 }
 .logo__link {
   text-decoration: none;
 }
 .logo {
   gap: 4px;
+  height: 72px;
 }
 .logo__image {
   width: 32px;
@@ -205,7 +212,7 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
   vertical-align: middle;
 }
 .search-box {
-  widows: 300px;
+  width: var(--search-box-width);
 }
 .search-box .el-autocomplete {
   width: 100%;
@@ -214,7 +221,10 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
   border-radius: 10px;
   background-color: var(--el-disabled-bg-color);
   box-shadow: none;
-  height: 30px;
+  height: 36px;
+}
+.search-box .el-input__inner {
+  font-family: inherit;
 }
 .search-box .el-input__icon {
   width: 20px;
@@ -227,7 +237,13 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
 .header-menu .el-sub-menu__title {
   border-bottom: none;
 }
+.header-menu.is-active .el-sub-menu__title {
+  border-bottom: none !important;
+}
 .header-menu__icon {
   rotate: 90deg;
+}
+.header-menu .el-sub-menu__icon-arrow {
+  display: none;
 }
 </style>

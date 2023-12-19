@@ -18,7 +18,7 @@ export default {
   <!-- Infinite Scroll -->
   <section class="video-section" v-loading="isFetching">
     <Video :video="video" v-for="video in data?.videos" :key="video._id" />
-    <el-backtop :right="100" :bottom="100" :visibility-height="50" />
+    <el-backtop target=".perfect-scrollbar" :right="50" :bottom="50" :visibility-height="50" />
   </section>
   <el-result
     v-if="data?.videos.length === 0"

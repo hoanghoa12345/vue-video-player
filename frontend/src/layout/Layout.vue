@@ -3,15 +3,15 @@ import Header from "./Header.vue";
 </script>
 
 <template>
-  <el-container>
-    <Header />
-    <el-scrollbar height="calc(100vh - 60px)" :always="true">
-      <el-main>
+  <el-scrollbar height="100vh" wrap-class="perfect-scrollbar" :always="false">
+    <el-container>
+      <Header />
+      <el-main class="container">
         <router-view />
       </el-main>
       <el-footer> </el-footer>
-    </el-scrollbar>
-  </el-container>
+    </el-container>
+  </el-scrollbar>
 </template>
 
 <style>

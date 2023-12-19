@@ -10,7 +10,7 @@ const navigateUpload = () => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="">
     <div>
       <div class="flex item-center" style="justify-content: space-between">
         <div class="flex item-center">
@@ -43,7 +43,7 @@ const navigateUpload = () => {
 
 .title {
   text-decoration: none;
-  color: black;
+  color: var(--el-text-color-primary);
   font-weight: bold;
   font-size: 16px;
 }

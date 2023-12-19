@@ -32,7 +32,7 @@ const LoginMutation = `
 const { data, execute, isDone, isFetching } = useMutation(LoginMutation);
 
 if (isDone) {
-  console.log("login response", data);
+  // console.log("login response", data);
 }
 
 const onSubmit = (formEl: FormInstance | undefined) => {
@@ -41,7 +41,7 @@ const onSubmit = (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log("submit!");
       execute({ payload: form }).then(({ data, error }: any) => {
-        console.log("login response", data, error);
+        // console.log("login response", data, error);
 
         if (!error) {
           const { name, email, roles, image, token, refresh_token } =
@@ -51,17 +51,17 @@ const onSubmit = (formEl: FormInstance | undefined) => {
           localStorage.setItem("access_token", token);
           localStorage.setItem("refresh_token", refresh_token);
 
-          console.log("Hello " + name);
+          // console.log("Hello " + name);
 
           router.push("/");
         } else {
-          console.log(error);
+          // console.log(error);
 
           ElMessage.error("Oops, Invalid email or password.");
         }
       });
     } else {
-      console.log("error submit!");
+      // console.log("error submit!");
       ElMessage.error("Oops, please input correct email or password.");
       return false;
     }
@@ -69,16 +69,20 @@ const onSubmit = (formEl: FormInstance | undefined) => {
 };
 </script>
 <template>
-  <section class="container">
-    <div class="box">
-      <img
-        class="logo"
-        width="122"
-        height="30"
-        src="http://myclip.vn/images/logo8.png"
+  <section class="container login-container">
+    <div class="login-card">
+      <div class="login-card__logo">
+         <img
+        class="logo__image"
+        width="48"
+        height="48"
+        src="/images/logo.svg"
         alt="logo" />
+        <p class="logo__text">MyClip</p>
+      </div>
+     
       <el-form
-        class="form"
+        class="login-form"
         :model="form"
         ref="formRef"
         label-position="top"
@@ -120,7 +124,7 @@ const onSubmit = (formEl: FormInstance | undefined) => {
             placeholder="Please input password"
             show-password />
         </el-form-item>
-        <el-form-item>
+        <el-form-item class="login-button__group">
           <el-button
             type="primary"
             @click="onSubmit(formRef)"
@@ -134,39 +138,38 @@ const onSubmit = (formEl: FormInstance | undefined) => {
   </section>
 </template>
 <style scoped>
-.container {
-  position: relative;
-  width: 100vw;
+.login-container {
+  display: grid;
+  place-content: center;
   height: 100vh;
-  overflow: hidden;
-  user-select: none;
-  background: #fff no-repeat;
-  background-size: cover;
 }
-.box {
-  width: 400px;
-  height: 500px;
-  left: 50%;
-  top: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  position: absolute;
+.login-card {
+  width: 25rem;
+  height: 32rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  background-color: var(--el-bg-color-overlay);
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 6px 20px 5px rgba(152, 152, 152, 0.1),
-    0 16px 24px 2px rgba(117, 117, 117, 0.14);
+  box-shadow: var(--el-box-shadow)
 }
-.box .form {
-  width: 80%;
-  margin: 50px auto 15px;
+
+.login-card__logo {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  grid-column: 2/3;
+  grid-row: 1/2;
 }
-.box .el-input {
-  margin-bottom: 20px;
+.login-card .login-form {
+  grid-column: 1/4;
+  grid-row: 2/4;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
-.box .logo {
-  margin-top: 2rem;
+
+.login-card .logo__image {
+  width: 48px;
+  height: 48px;
 }
 </style>
