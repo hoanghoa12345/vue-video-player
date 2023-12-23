@@ -15,6 +15,8 @@ const graphqlSchema = createSchema({
       thumbnail: String!
       createdAt: String!
       category: Category
+      comments: [Comment]
+      likes: [Like]
       views: Int!
     }
     type User {
@@ -31,6 +33,19 @@ const graphqlSchema = createSchema({
     type Category {
       _id: ID!
       name: String!
+      createdAt: String!
+    }
+
+    type Comment {
+      _id: ID!
+      body: String!
+      user: User!
+      createdAt: String!
+      replies: [Comment]
+    }
+
+    type Like {
+      user: User!
       createdAt: String!
     }
 
@@ -71,6 +86,8 @@ const graphqlSchema = createSchema({
       refreshToken(token: String): String
       logout(token: String): String
       updateVideo(id: ID!, video: VideoInput!): Video
+      createComment(videoId: ID!, comment: String!): Video
+      replyComment(videoId: ID!, commentId: ID!, reply: String!): Video
     }
 
     schema {

@@ -30,3 +30,11 @@ export interface User {
   token: string;
   refresh_token: string;
 }
+
+export interface Comment {
+  _id: string;
+  body: string;
+  user: User;
+  createdAt: string;
+  replies?: Comment;
+}

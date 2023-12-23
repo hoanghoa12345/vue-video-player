@@ -158,7 +158,7 @@ watch(data, (data) => {
               >View less</span
             ></span
           >
-          <Comments />
+          <Comments :comments="data.video.comments" :video-id="data.video._id" />
         </div>
       </div>
 

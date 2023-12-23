@@ -70,6 +70,24 @@ export const GetVideo = /* GraphQL */ `
       thumbnail
       createdAt
       views
+      comments {
+        _id
+        body
+        createdAt
+        user {
+          _id
+          name
+        }
+        replies {
+          _id
+          body
+          user {
+            _id
+            name
+          }
+          createdAt
+        }
+      }
     }
   }
 `;
@@ -99,6 +117,26 @@ export const UpdateVideo = `
       createdAt
       category {
         _id
+      }
+      views
+    }
+  }
+`;
+
+export const CreateComment = /* GraphQL */ `
+  mutation createComment($videoId: ID!, $comment: String!) {
+    createComment(comment: $comment, videoId: $videoId) {
+      _id
+      createdAt
+      description
+      duration
+      filePath
+      privacy
+      thumbnail
+      title
+      uploadedBy {
+        _id
+        name
       }
       views
     }

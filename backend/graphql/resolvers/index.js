@@ -17,7 +17,10 @@ const graphqlResolvers = {
     },
     video: async (root, args) => {
       try {
-        const video = await Video.findById(args.id).populate(["uploadedBy"]);
+        const video = await Video.findById(args.id).populate([
+          "uploadedBy",
+          "comments.user",
+        ]);
 
         return video;
       } catch (error) {
@@ -158,7 +161,7 @@ const graphqlResolvers = {
     refreshToken: async (root, args, context) => {
       const tokenInput = args.token;
 
-      const tokenItem = RefreshToken.findOne({ token: tokenInput });
+      const tokenItem = await RefreshToken.findOne({ token: tokenInput });
       if (tokenItem) {
         return getToken({ _id: tokenItem.user });
       }
@@ -174,7 +177,7 @@ const graphqlResolvers = {
         return "Token removed";
       }
     },
-    updateVideo(root, args, context) {
+    updateVideo: async (root, args, context) => {
       const user = checkAuth(context.token);
       const { id } = args;
       const {
@@ -207,6 +210,60 @@ const graphqlResolvers = {
       };
 
       return Video.findByIdAndUpdate(id, updateData, { new: true });
+    },
+    createComment: async (root, args, context) => {
+      const user = checkAuth(context.token);
+      if (!user._id)
+        return new GraphQLError("User not found", {
+          extensions: {
+            code: "USER_NOT_FOUND",
+            message: "User not found",
+            http: {
+              status: 400,
+            },
+          },
+        });
+      const { videoId, comment } = args;
+      const video = await Video.findById(videoId);
+      if (!video) {
+        return new GraphQLError("Video not found", {
+          extensions: {
+            code: "VIDEO_NOT_FOUND",
+            message: "Video not found",
+            http: {
+              status: 400,
+            },
+          },
+        });
+      }
+      return await video.addComment(comment, user._id);
+    },
+    replyComment: async (root, args, context) => {
+      const user = checkAuth(context.token);
+      if (!user._id)
+        return new GraphQLError("User not found", {
+          extensions: {
+            code: "USER_NOT_FOUND",
+            message: "User not found",
+            http: {
+              status: 400,
+            },
+          },
+        });
+      const { videoId, commentId, reply } = args;
+      const video = Video.findById(videoId);
+      if (!video) {
+        return new GraphQLError("Video not found", {
+          extensions: {
+            code: "VIDEO_NOT_FOUND",
+            message: "Video not found",
+            http: {
+              status: 400,
+            },
+          },
+        });
+      }
+      return video.replyComment(commentId, reply, user._id);
     },
   },
 };
