@@ -7,7 +7,17 @@ export interface Video {
   duration: string;
   thumbnail: string;
   createdAt: string;
+  privacy?: number;
   views: number;
+}
+export interface VideoInput {
+  title: string;
+  description: string;
+  filePath: string;
+  thumbnail: string;
+  duration: string;
+  uploadedBy: string;
+  privacy: number;
 }
 
 export interface User {

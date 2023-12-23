@@ -174,6 +174,40 @@ const graphqlResolvers = {
         return "Token removed";
       }
     },
+    updateVideo(root, args, context) {
+      const user = checkAuth(context.token);
+      const { id } = args;
+      const {
+        title,
+        description,
+        uploadedBy,
+        duration,
+        thumbnail,
+        filePath,
+        privacy,
+      } = args.video;
+
+      const video = Video.findById(id);
+      if (!video) {
+        return new GraphQLError("Video not found", {
+          extensions: {
+            code: "VIDEO_NOT_FOUND",
+            message: "Video not found",
+            http: {
+              status: 400,
+            },
+          },
+        });
+      }
+      const updateData = {
+        title: title || video.title,
+        description: description || video.description,
+        thumbnail: thumbnail || video.thumbnail,
+        privacy: privacy || video.privacy,
+      };
+
+      return Video.findByIdAndUpdate(id, updateData, { new: true });
+    },
   },
 };
 

@@ -11,7 +11,7 @@ const graphqlSchema = createSchema({
       uploadedBy: User!
       filePath: String!
       duration: String!
-      privacy: Int!
+      privacy: Int
       thumbnail: String!
       createdAt: String!
       category: Category
@@ -70,6 +70,7 @@ const graphqlSchema = createSchema({
       login(payload: LoginPayload): User
       refreshToken(token: String): String
       logout(token: String): String
+      updateVideo(id: ID!, video: VideoInput!): Video
     }
 
     schema {

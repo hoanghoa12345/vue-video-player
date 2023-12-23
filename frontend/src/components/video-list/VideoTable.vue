@@ -2,13 +2,13 @@
 import { UploadFilled, Upload } from "@element-plus/icons-vue";
 import { FormInstance, ElMessage, FormRules } from "element-plus";
 import { useMutation, useQuery } from "villus";
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import _ from "lodash-es";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { backendUrl } from "@/services/api";
 import { Video } from "@/utils/types";
-
+import EditVideoDialog from '@/components/video-dialogs/EditVideoDialog.vue'
 dayjs.extend(duration);
 const dialogVisible = ref(false);
 const editVideoModal = ref<boolean>(false);
@@ -31,6 +31,7 @@ const AllVideos = `
       filePath
       thumbnail
       duration
+      privacy
       createdAt
       views
     }
@@ -120,69 +121,44 @@ const editVideo = (video: Video) => {
   videoData.value = video;
   editVideoModal.value = true;
 };
+const closeEditDialog = () => {
+  refetch()
+}
 </script>
+
 <template>
-  <div>
+  <div class="video-table__container">
     <button type="button" @click="dialogVisible = true">create</button>
     <div>
       <el-row :gutter="20" v-loading="isFetching">
-        <el-col
-          v-for="video in data?.videos"
-          :key="video._id"
-          :xl="4"
-          :lg="4"
-          :md="6"
-          :sm="10"
-          :xs="12">
-          <el-card
-            class="video-table__card"
-            :body-style="{ padding: '0px' }"
-            shadow="hover">
-            <img
-              :src="`${backendUrl}/image/${video.thumbnail}`"
-              class="image" />
+        <el-col v-for="video in data?.videos" :key="video._id" :xl="4" :lg="4" :md="6" :sm="10" :xs="12">
+          <el-card class="video-table__card" :body-style="{ padding: '0px' }" shadow="hover">
+            <img :src="`${backendUrl}/image/${video.thumbnail}`" class="image" />
             <div style="padding: 14px">
               <span class="video-table__title">{{ video.title }}</span>
               <div class="bottom clearfix">
                 <time class="time">{{
                   dayjs.duration(video.duration * 1000).format("mm:ss")
                 }}</time>
-                <el-link
-                  type="primary"
-                  class="edit-button"
-                  :underline="false"
-                  @click="editVideo(video)"
-                  >Edit</el-link
-                >
+                <el-link type="primary" class="edit-button" :underline="false" @click="editVideo(video)">Edit</el-link>
               </div>
             </div>
           </el-card>
         </el-col>
       </el-row>
       <div>
-        <el-result
-          v-if="data?.videos.length === 0"
-          icon="warning"
-          title="Lỗi"
-          sub-title="Not have video!"></el-result>
+        <el-result v-if="data?.videos.length === 0" icon="warning" title="Lỗi" sub-title="Not have video!"></el-result>
         <el-result v-if="error" icon="info" title="Error">
           <template #sub-title>
             <p>500 - Error when load data</p>
             <pre>{{ error }}</pre>
           </template>
           <template #extra>
-            <el-button
-              type="primary"
-              @click="refetch({ cachePolicy: 'network-only' })"
-              >Try again!</el-button
-            >
+            <el-button type="primary" @click="refetch({ cachePolicy: 'network-only' })">Try again!</el-button>
           </template>
         </el-result>
       </div>
-      <el-dialog
-        v-model="dialogVisible"
-        title="Upload Video"
-        :before-close="handleClose">
+      <el-dialog v-model="dialogVisible" title="Upload Video" :before-close="handleClose">
         <el-form :model="form" label-width="120px" :rules="rules" ref="formRef">
           <el-form-item label="Title" prop="title">
             <el-input v-model="form.title" type="text" />
@@ -203,47 +179,27 @@ const editVideo = (video: Video) => {
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="dialogVisible = false">Cancel</el-button>
-            <el-button
-              type="primary"
-              @click="onSubmit(formRef)"
-              :loading="isFetchingForm">
-              Upload<el-icon class="el-icon--right"><Upload /></el-icon>
+            <el-button type="primary" @click="onSubmit(formRef)" :loading="isFetchingForm">
+              Upload<el-icon class="el-icon--right">
+                <Upload />
+              </el-icon>
             </el-button>
           </span>
         </template>
       </el-dialog>
-      <el-dialog
-        :title="videoData?.title"
-        v-model="editVideoModal"
-        :draggable="true"
-        width="80%">
-        <el-tabs
-          tab-position="left"
-          type="border-card"
-          class="video-edit__tabs">
-          <el-tab-pane label="Title"
-            ><p class="video-table__title">Title</p></el-tab-pane
-          >
-          <el-tab-pane label="Video"
-            ><p class="video-table__title">Video</p></el-tab-pane
-          >
-          <el-tab-pane label="Visible"
-            ><p class="video-table__title">Visible</p></el-tab-pane
-          >
-          <el-tab-pane label="Thumbnail">
-            <p class="video-table__title">Thumbnail</p>
-            <div class="video-edit__image-thumbnail">
-              <el-image
-                style="width: 20rem; height: 15rem"
-                :src="`${backendUrl}/image/${videoData?.thumbnail}`"
-                fit="contain" />
-            </div>
-          </el-tab-pane>
-        </el-tabs>
-      </el-dialog>
+      <EditVideoDialog v-model="editVideoModal" :videoData="videoData" @close="closeEditDialog" />
     </div>
   </div>
 </template>
+
+
+
+
+
+
+
+
+
 <style scoped>
 .image {
   width: 100%;
@@ -260,3 +216,12 @@ const editVideo = (video: Video) => {
   float: right;
 }
 </style>
+
+
+
+
+
+
+
+
+

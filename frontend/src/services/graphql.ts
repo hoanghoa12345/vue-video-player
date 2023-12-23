@@ -82,3 +82,25 @@ mutation updateVideoView($id: ID) {
   }
 }
 `;
+
+export const UpdateVideo = `
+  mutation updateVideo($id: ID!, $video: VideoInput!) {
+    updateVideo(id: $id,video: $video) {
+      _id
+      title
+      description
+      uploadedBy {
+        _id
+      }
+      filePath
+      duration
+      privacy
+      thumbnail
+      createdAt
+      category {
+        _id
+      }
+      views
+    }
+  }
+`;

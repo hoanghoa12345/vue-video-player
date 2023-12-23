@@ -20,14 +20,14 @@ export function authPluginWithRefresh({
   const { execute } = useMutation(RefreshToken);
 
   afterQuery((result, { response }) => {
-    // console.log("response", response);
-    // console.log("result", result);
+    console.log("response", response);
+    console.log("result", result);
 
     // if no response, then the fetch plugin failed with a fatal error
     if (!response) {
       return;
     }
-    // console.log("retry count: ", retryCount);
+    console.log("retry count: ", retryCount);
 
     // Update the access token
     if (
@@ -35,11 +35,11 @@ export function authPluginWithRefresh({
       response.body?.errors[0].message === "jwt expired" &&
       retryCount < 1
     ) {
-      // console.log("jwt expired");
+      console.log("jwt expired");
       retryCount += 1;
       execute({ token: localStorage.getItem("refresh_token") }).then(
         ({ data, error }: any) => {
-          // console.log(error, data);
+          console.log(error, data);
           // router.push('/login')
         }
       );
@@ -56,6 +56,6 @@ export function authPluginWithRefresh({
       tokenState.value = login?.token;
       opContext.headers.Authorization = `Bearer ${tokenState.value}`;
     }
-    // console.log("token");
+    console.log("token");
   });
 }

@@ -35,21 +35,22 @@ const init = () => {
     hls.attachMedia(refVideo.value!);
     hls.on(Hls.Events.MEDIA_ATTACHED, () => {
       hls.loadSource(props.src);
-      console.log("on attached");
+      // console.log("on attached");
       hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
         console.log(data);
-        console.log("auto play", props.autoPlay);
+        // console.log("auto play", props.autoPlay);
 
         if (props.autoPlay) {
           // Auto play video
           refVideo.value?.play();
+          console.log("%cVue.Player", "color:#caf0f8;padding:4px;background:#0077b6;border-radius:4px", 'Autoplay started!');
         }
       });
       hls.on(Hls.Events.LEVEL_SWITCHING, (ev, data) => {
-        console.log(data);
+        // console.log(data);
       });
       hls.on(Hls.Events.LEVEL_SWITCHED, (ev, data) => {
-        console.log(data);
+        // console.log(data);
       });
     });
   }
