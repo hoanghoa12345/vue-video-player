@@ -1,14 +1,5 @@
 import { Schema, model } from "mongoose";
-
-const CommentSchema = new Schema({
-  body: { type: String, required: true, maxlength: 1000 },
-  user: { type: Schema.ObjectId, ref: "User" },
-  createdAt: { type: Date, default: Date.now },
-});
-
-CommentSchema.add({ replies: CommentSchema });
-
-const Comment = model("Comment", CommentSchema);
+import Comment from "./comment.js";
 
 const videoSchema = new Schema(
   {
@@ -21,7 +12,7 @@ const videoSchema = new Schema(
     filePath: { type: String, require: true },
     privacy: { type: Number, require: true },
     category: { type: Schema.ObjectId, ref: "Category" },
-    comments: [CommentSchema],
+    comments: [{ type: Schema.ObjectId, ref: "Comment" }],
     likes: [
       {
         user: { type: Schema.ObjectId, ref: "User" },
@@ -34,7 +25,7 @@ const videoSchema = new Schema(
   }
 );
 
-videoSchema.methods.addReplyToComment = async function (
+videoSchema.methods.addReplyToComment = async function(
   commentId,
   replyBody,
   userId
@@ -47,6 +38,7 @@ videoSchema.methods.addReplyToComment = async function (
     }
     targetComment.replies.push({
       body: replyBody,
+      video: this._id,
       user: userId,
     });
     return await targetComment.save();
@@ -55,15 +47,16 @@ videoSchema.methods.addReplyToComment = async function (
   }
 };
 
-videoSchema.methods.addComment = async function (commentBody, userId) {
+videoSchema.methods.addComment = async function(commentBody, userId) {
   try {
     const newComment = new Comment({
       body: commentBody,
+      video: this._id,
       user: userId,
+      replies: []
     });
 
-    this.comments.push(newComment);
-    return await this.save();
+    return await newComment.save();
   } catch (error) {
     throw error;
   }

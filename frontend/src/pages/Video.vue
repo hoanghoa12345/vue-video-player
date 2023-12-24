@@ -95,7 +95,7 @@ watch(data, (data) => {
       <div v-if="data">
         <VideoPlayer
           :src="getVideoPath(data.video.filePath)"
-          :auto-play="true" />
+          :auto-play="false" />
         <div>
           <h3 class="video-title">{{ data.video.title }}</h3>
           <div class="video-info__wrapper">

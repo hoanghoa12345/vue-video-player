@@ -86,8 +86,8 @@ const graphqlSchema = createSchema({
       refreshToken(token: String): String
       logout(token: String): String
       updateVideo(id: ID!, video: VideoInput!): Video
-      createComment(videoId: ID!, comment: String!): Video
-      replyComment(videoId: ID!, commentId: ID!, reply: String!): Video
+      createComment(videoId: ID!, comment: String!): Comment 
+      replyComment(videoId: ID!, commentId: ID!, reply: String!): Comment 
     }
 
     schema {

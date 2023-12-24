@@ -18,8 +18,23 @@ const graphqlResolvers = {
     video: async (root, args) => {
       try {
         const video = await Video.findById(args.id).populate([
-          "uploadedBy",
-          "comments.user",
+          {
+            path: "uploadedBy",
+          },
+          {
+            path: "comments",
+            populate: [{
+              path: "user",
+              model: "User"
+            },
+            {
+              path: "replies",
+              populate: {
+                path: "user",
+                model: "User"
+              }
+            }]
+          }
         ]);
 
         return video;
@@ -256,7 +271,7 @@ const graphqlResolvers = {
           },
         });
       const { videoId, commentId, reply } = args;
-      const video = Video.findById(videoId);
+      const video = await Video.findById(videoId);
       if (!video) {
         return new GraphQLError("Video not found", {
           extensions: {
@@ -268,7 +283,7 @@ const graphqlResolvers = {
           },
         });
       }
-      return video.replyComment(commentId, reply, user._id);
+      return await video.addReplyToComment(commentId, reply, user._id);
     },
   },
 };

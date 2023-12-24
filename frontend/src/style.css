@@ -179,9 +179,7 @@ body {
   margin-block-start: 0em;
   margin-block-end: 1em;
 }
-.comments__footer {
-}
-.user-input__wrapper {
+.comments__input-wrapper {
   display: flex;
   gap: 0.8rem;
   align-items: center;
@@ -189,7 +187,7 @@ body {
 .input__input--large .el-input__wrapper {
   border-radius: 0.8em;
 }
-.user-input__wrapper .el-button {
+.comments__input-wrapper .el-button {
   border-radius: 0.8em;
 }
 /* == Comment == */
@@ -197,6 +195,9 @@ body {
   display: flex;
   gap: 0.8rem;
   padding: 0.5rem 0;
+}
+.comment__inner {
+  width: 100%;
 }
 .comment__info {
   margin-block-start: 0;
@@ -227,3 +228,13 @@ body {
 .comment__number {
   font-size: 12px;
 }
+.reply-input__wrapper {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 4px;
+}
+.reply-input__wrapper .el-button {
+  border-radius: 0.6em;
+}
+

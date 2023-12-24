@@ -127,17 +127,14 @@ export const CreateComment = /* GraphQL */ `
   mutation createComment($videoId: ID!, $comment: String!) {
     createComment(comment: $comment, videoId: $videoId) {
       _id
-      createdAt
-      description
-      duration
-      filePath
-      privacy
-      thumbnail
-      title
-      uploadedBy {
-        _id
-      }
-      views
     }
   }
 `;
+
+export const ReplyComment = /* GraphQL */`
+mutation MyMutation($commentId: ID!, $reply: String!, $videoId: ID!) {
+  replyComment(commentId: $commentId, reply: $reply, videoId: $videoId) {
+    _id
+  }
+}
+`
