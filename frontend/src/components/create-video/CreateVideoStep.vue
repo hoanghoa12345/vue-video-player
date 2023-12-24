@@ -299,9 +299,7 @@ const showErrorMsg: UploadProps["onError"] = (
   showNotification(error.cause + " " + uploadFile.name, "Error", "error");
 };
 
-const handleSaveVideo = () => {
-  // console.log("[submited] submited to save");
-  showNotification("Save video success", "Success");
+const handleSaveVideo = () => {  
 
   // ==== Video Info ====
   // - title
@@ -314,7 +312,14 @@ const handleSaveVideo = () => {
   // - category
   formdata.privacy = 1;
 
-  execute({ videoInput: formdata });
+  execute({ videoInput: formdata }).then(({data, error}) => {
+    if(!error) {
+      // console.log("[submited] submited to save");
+      showNotification("Save video success", "Success");
+    } else {
+      showNotification('Error: ' + error.cause, "Error", "error");
+    }
+  });
 
   // console.log("[info] form data", formdata);
 };

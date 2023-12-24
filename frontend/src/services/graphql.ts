@@ -136,7 +136,6 @@ export const CreateComment = /* GraphQL */ `
       title
       uploadedBy {
         _id
-        name
       }
       views
     }

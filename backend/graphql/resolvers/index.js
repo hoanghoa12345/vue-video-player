@@ -29,7 +29,12 @@ const graphqlResolvers = {
     },
     videosRelated: async (root, args) => {
       try {
-        return Video.find().limit(5).populate(["uploadedBy"]);
+        return Video.find()
+          .where("_id")
+          .nin(args.id)
+          .sort({ createdAt: 1 })
+          .limit(10)
+          .populate(["uploadedBy"]);
       } catch (error) {
         throw new GraphQLError(error.message, {
           extensions: {

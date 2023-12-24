@@ -122,13 +122,23 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
       @select="handleSelectMenu">
       <el-menu-item index="0">
         <router-link to="/" class="logo__link">
-          <div class="flex items-center logo">
+          <div class="flex items-center logo" style="position: relative">
             <img
               class="logo__image"
               width="32"
               height="32"
               src="/images/logo.svg"
               alt="logo" />
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/9181/9181358.png"
+              style="
+                width: 16px;
+                height: 16px;
+                rotate: 30deg;
+                position: absolute;
+                right: 67px;
+                top: 15px;
+              " />
             <p class="logo__text">MyClip</p>
           </div>
         </router-link>
