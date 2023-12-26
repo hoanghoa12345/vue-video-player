@@ -1,0 +1,21 @@
+{
+  "name": "vue-video-player",
+  "private": "true",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/hoanghoa12345/vue-video-player.git",
+  "author": "Hoang Hoa <44923253+hoanghoa12345@users.noreply.github.com>",
+  "license": "MIT",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "yarn workspace backend run dev",
+    "dev:frontend": "yarn workspace frontend run dev --host",
+    "start:backend": "yarn workspace backend run start",
+    "preview:frontend": "yarn workspace frontend run preview",
+    "build:frontend": "yarn workspace frontend run build"
+  }
+}
