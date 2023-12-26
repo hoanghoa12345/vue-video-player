@@ -23,18 +23,20 @@ const graphqlResolvers = {
           },
           {
             path: "comments",
-            populate: [{
-              path: "user",
-              model: "User"
-            },
-            {
-              path: "replies",
-              populate: {
+            populate: [
+              {
                 path: "user",
-                model: "User"
-              }
-            }]
-          }
+                model: "User",
+              },
+              {
+                path: "replies",
+                populate: {
+                  path: "user",
+                  model: "User",
+                },
+              },
+            ],
+          },
         ]);
 
         return video;

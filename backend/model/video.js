@@ -25,7 +25,7 @@ const videoSchema = new Schema(
   }
 );
 
-videoSchema.methods.addReplyToComment = async function(
+videoSchema.methods.addReplyToComment = async function (
   commentId,
   replyBody,
   userId
@@ -47,16 +47,19 @@ videoSchema.methods.addReplyToComment = async function(
   }
 };
 
-videoSchema.methods.addComment = async function(commentBody, userId) {
+videoSchema.methods.addComment = async function (commentBody, userId) {
   try {
-    const newComment = new Comment({
+    const comment = new Comment({
       body: commentBody,
       video: this._id,
       user: userId,
-      replies: []
+      replies: [],
     });
 
-    return await newComment.save();
+    const newComment = await comment.save();
+    this.comments.push(newComment._id);
+    await this.save();
+    return newComment;
   } catch (error) {
     throw error;
   }

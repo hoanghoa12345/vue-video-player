@@ -36,5 +36,5 @@ export interface Comment {
   body: string;
   user: User;
   createdAt: string;
-  replies?: Comment;
+  replies?: Comment[];
 }
