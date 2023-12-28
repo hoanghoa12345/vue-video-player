@@ -49,7 +49,7 @@ const graphqlResolvers = {
         return Video.find()
           .where("_id")
           .nin(args.id)
-          .sort({ createdAt: 1 })
+          .sort({ createdAt: -1 })
           .limit(10)
           .populate(["uploadedBy"]);
       } catch (error) {

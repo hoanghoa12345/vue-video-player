@@ -169,11 +169,15 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
 
 <style>
 .el-menu--horizontal {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
 .flex {
   display: flex;
+}
+
+.header-logo {
+  height: 5rem;
 }
 
 .header-logo.el-menu--horizontal>.el-menu-item.is-active {

@@ -206,6 +206,7 @@ const mongodbUri = process.env.MONGODB_URI;
 const options = {};
 const port = process.env.PORT || 4000;
 
+mongoose.set("strictQuery", true);
 mongoose
   .connect(mongodbUri, options)
   .then(() =>
