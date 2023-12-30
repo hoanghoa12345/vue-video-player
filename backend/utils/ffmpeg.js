@@ -5,9 +5,15 @@ dotenv.config();
 ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH);
 ffmpeg.setFfprobePath(process.env.FFPROBE_PATH);
 
-async function generateThumbnail(inputFileName, outputFileName) {
+async function generateThumbnail(
+  inputFileName,
+  outputFileName,
+  currentTime = "00:00:01.000"
+) {
+  const options = ["-ss", currentTime, "-vframes", "1"];
   await ffmpeg(inputFileName, { timeout: 432000 })
-    .addOptions(["-ss 00:00:01.000", "-vframes 1"])
+    // .addOptions(["-ss 00:00:01.000", "-vframes 1"])
+    .addOptions(options)
     .output(outputFileName)
     .on("end", () => {
       console.log("[info] Finish to make thumbnail");

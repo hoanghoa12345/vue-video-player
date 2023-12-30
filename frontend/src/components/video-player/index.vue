@@ -68,6 +68,7 @@ const init = () => {
           // console.log("Autoplay started!");
         })
         .catch((error) => {
+          playerState.playBtnState = "play";
           // console.log("Autoplay was prevented", error);
         });
     }
@@ -85,12 +86,16 @@ const init = () => {
 
         if (props.autoPlay) {
           // Auto play video
-          refVideo.value?.play();
-          console.log(
-            "%cVue.Player",
-            "color:#caf0f8;padding:4px;background:#0077b6;border-radius:4px",
-            "Autoplay started!"
-          );
+          refVideo.value
+            ?.play()
+            .then((_) =>
+              console.log(
+                "%cVue.Player",
+                "color:#caf0f8;padding:4px;background:#0077b6;border-radius:4px",
+                "Autoplay started!"
+              )
+            )
+            .catch(() => (playerState.playBtnState = "play"));
         }
       });
       hls.on(Hls.Events.LEVEL_SWITCHING, (ev, data) => {
@@ -161,9 +166,9 @@ const progressChange = (event: Event, val: number) => {
   if (refVideo.value) {
     const duration = refVideo.value.duration;
     refVideo.value.currentTime = duration * val;
-    if(playerState.playBtnState === 'play') {
-      refVideo.value.play()
-      playerState.playBtnState = "pause"
+    if (playerState.playBtnState === "play") {
+      refVideo.value.play();
+      playerState.playBtnState = "pause";
     }
   }
 };
@@ -180,7 +185,7 @@ const onProgress = (event: Event) => {
 const togglePlay = () => {
   if (playerState.playBtnState === "play") {
     if (refVideo.value) {
-      refVideo.value.play()
+      refVideo.value.play();
       playerState.playBtnState = "pause";
     }
   } else if (playerState.playBtnState === "pause") {
@@ -211,6 +216,10 @@ const toggleFullScreen = () => {
   }
 };
 
+const onPlay = () => {
+  playerState.playBtnState = "pause";
+};
+
 const hideControl = debounce(() => {
   playerState.isVideoHovering = false;
   if (refVideo.value) refVideo.value.style.cursor = "none";
@@ -219,7 +228,7 @@ const hideControl = debounce(() => {
 const mouseMoveWarp = () => {
   if (refVideo.value) refVideo.value.style.cursor = "auto";
   playerState.isVideoHovering = true;
-  if(!playerState.isProgressHovering) {
+  if (!playerState.isProgressHovering) {
     hideControl();
   }
 };
@@ -271,6 +280,10 @@ const playProgressStyle = computed(() => {
   const value = (playerState.playerProgress * 100).toFixed(2);
   return `width: ${value}%`;
 });
+
+defineExpose({
+  refVideo
+})
 </script>
 
 <template>
@@ -284,10 +297,11 @@ const playProgressStyle = computed(() => {
         ref="refVideo"
         :muted="playerState.muted"
         :volume="playerState.volume"
+        @play="onPlay"
         @timeupdate="onTimeUpdate"
         @canplay="onCanPlay"
         @ended="onEnded"
-        @progress="onProgress"/>
+        @progress="onProgress" />
     </div>
     <Transition v-if="playerState.playBtnState === 'play'">
       <div class="player__big-play-button">
@@ -303,12 +317,15 @@ const playProgressStyle = computed(() => {
     </Transition>
 
     <Transition>
-      <div class="player-controls" v-show="playerState.isVideoHovering || playerState.playBtnState === 'play'">
+      <div
+        class="player-controls"
+        v-show="
+          playerState.isVideoHovering || playerState.playBtnState === 'play'
+        ">
         <div
           ref="refProgress"
           class="player__slider player__progress__container"
           @mousemove="mouseMoveProgress"
-          @mouseleave="playerState.isProgressHovering = false"
           @mousedown.stop="mouseDownHandle"
           @mouseup.stop="mouseUpHandle">
           <div class="player__progress__holder" @mousemove="mouseMoveHandle">
@@ -413,6 +430,7 @@ video {
 .player__progress__container {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 .player__progress__holder {
   border-radius: 0.25rem;

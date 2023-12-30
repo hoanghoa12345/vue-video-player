@@ -3,21 +3,28 @@ import VideoPlayer from "@/components/video-player/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useQuery, useMutation } from "villus";
 import { onMounted, onUpdated, ref, watch } from "vue";
-import { GetVideo, UpdateViewVideo, VideosRelated } from "@/services/graphql";
+import {
+  GetVideo,
+  LikeVideo,
+  UpdateViewVideo,
+  VideosRelated,
+} from "@/services/graphql";
 import { backendUrl, getVideoPath } from "@/services/api";
 import defaultThumbnailVideo from "@/assets/thumbnail-placeholder.webp";
-import Comments from "@/components/video-comments/Comments.vue"
+import Comments from "@/components/video-comments/Comments.vue";
 import { useTitle } from "@vueuse/core";
 import _ from "lodash-es";
 import { getUsernameInitial } from "@/utils/user";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/en";
+import { useUserStore } from "@/stores/user";
 
 const router = useRouter();
 const route = useRoute();
 const title = useTitle();
 const showMore = ref<boolean>(false);
+const userStore = useUserStore();
 dayjs.locale("en");
 dayjs.extend(relativeTime);
 
@@ -30,6 +37,7 @@ const {
   query: GetVideo,
   variables: {
     id: route.params.id,
+    userId: userStore.id,
   },
 });
 
@@ -48,11 +56,11 @@ const { data: updateView, execute } = useMutation(UpdateViewVideo);
 const variables = {
   id: route.params.id,
 };
+const { data: videoLikedId, execute: likeVideo } = useMutation(LikeVideo);
 
 onMounted(() => {
   execute(variables);
   // console.log(updateView);
-  window.scrollTo(0, 0);
 });
 
 onUpdated(() => {
@@ -61,6 +69,7 @@ onUpdated(() => {
   fetchVideo({
     variables: {
       id: route.params.id,
+      userId: userStore.id,
     },
   });
 });
@@ -80,6 +89,20 @@ watch(data, (data) => {
     ],
   });
 });
+
+watch(
+  () => route.params.id,
+  () => {
+    const scrollEl = document.querySelector<HTMLElement>(".perfect-scrollbar");
+    if (!scrollEl) throw new Error("Can't scroll to top");
+
+    setTimeout(() => {
+      if (scrollEl) {
+        scrollEl.scrollTo(0, 0);
+      }
+    }, 200);
+  }
+);
 </script>
 
 <template>
@@ -95,7 +118,7 @@ watch(data, (data) => {
       <div v-if="data">
         <VideoPlayer
           :src="getVideoPath(data.video.filePath)"
-          :auto-play="false" />
+          :auto-play="true" />
         <div>
           <h3 class="video-title">{{ data.video.title }}</h3>
           <div class="video-info__wrapper">
@@ -106,27 +129,38 @@ watch(data, (data) => {
             </div>
             <div class="video-info__reaction">
               <div class="video-info__like_number">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 16 16">
-                  <path
-                    fill="currentColor"
-                    d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
-                </svg>
-                <svg
-                  v-show="false"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 16 16">
-                  <path
-                    fill="currentColor"
-                    fill-rule="evenodd"
-                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15C-7.534 4.736 3.562-3.248 8 1.314" />
-                </svg>
-                <span>0</span>
+                <button
+                  class="video-info__like-button"
+                  @click="
+                    likeVideo({ videoId: data.video._id }).then(
+                      () =>
+                        (data.video.isLike = data.video.isLike ? false : true)
+                    )
+                  ">
+                  <svg
+                    v-if="data.video.isLike"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 16 16">
+                    <path
+                      fill="currentColor"
+                      fill-rule="evenodd"
+                      d="M8 1.314C12.438-3.248 23.534 4.735 8 15C-7.534 4.736 3.562-3.248 8 1.314" />
+                  </svg>
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 16 16">
+                    <path
+                      fill="currentColor"
+                      d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
+                  </svg>
+                </button>
+
+                <span>{{ data.video.likes.length }}</span>
               </div>
             </div>
           </div>
@@ -158,7 +192,9 @@ watch(data, (data) => {
               >View less</span
             ></span
           >
-          <Comments :comments="data.video.comments" :video-id="data.video._id" />
+          <Comments
+            :comments="data.video.comments"
+            :video-id="data.video._id" />
         </div>
       </div>
 

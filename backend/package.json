@@ -23,7 +23,6 @@
     "express-rate-limit": "^6.7.0",
     "fluent-ffmpeg": "^2.1.2",
     "graphql": "^16.6.0",
-    "graphql-helix": "^1.13.0",
     "graphql-yoga": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.7.2",

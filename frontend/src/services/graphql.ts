@@ -56,8 +56,8 @@ export const VideosRelated = /* GraphQL */ `
   }
 `;
 export const GetVideo = /* GraphQL */ `
-  query getVideo($id: String) {
-    video(id: $id) {
+  query getVideo($id: String, $userId: String) {
+    video(id: $id, userId: $userId) {
       _id
       title
       description
@@ -88,22 +88,28 @@ export const GetVideo = /* GraphQL */ `
           createdAt
         }
       }
+      likes {
+        user {
+          _id
+        }
+      }
+      isLike
     }
   }
 `;
 
-export const UpdateViewVideo = `
-mutation updateVideoView($id: ID) {
-  updateVideoView(id: $id) {
-    _id
-    views
+export const UpdateViewVideo = /* GraphQL */ `
+  mutation updateVideoView($id: ID) {
+    updateVideoView(id: $id) {
+      _id
+      views
+    }
   }
-}
 `;
 
-export const UpdateVideo = `
+export const UpdateVideo = /* GraphQL */ `
   mutation updateVideo($id: ID!, $video: VideoInput!) {
-    updateVideo(id: $id,video: $video) {
+    updateVideo(id: $id, video: $video) {
       _id
       title
       description
@@ -131,10 +137,18 @@ export const CreateComment = /* GraphQL */ `
   }
 `;
 
-export const ReplyComment = /* GraphQL */`
-mutation MyMutation($commentId: ID!, $reply: String!, $videoId: ID!) {
-  replyComment(commentId: $commentId, reply: $reply, videoId: $videoId) {
-    _id
+export const ReplyComment = /* GraphQL */ `
+  mutation MyMutation($commentId: ID!, $reply: String!, $videoId: ID!) {
+    replyComment(commentId: $commentId, reply: $reply, videoId: $videoId) {
+      _id
+    }
   }
-}
-`
+`;
+
+export const LikeVideo = /* GraphQL */ `
+  mutation likeVideo($videoId: ID!) {
+    likeVideo(videoId: $videoId) {
+      _id
+    }
+  }
+`;

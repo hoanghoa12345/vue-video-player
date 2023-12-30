@@ -45,10 +45,13 @@
         <p class="video-table__title">Video</p>
         <div class="video-player__wrapper">
           <video-player
-            v-if="currentTab === TAB_EDIT_VIDEO"
+            ref="videoRef"
             :src="getVideoPath(videoData?.filePath)"
-            :auto-play="false" />
+            :auto-play="false"
+            controls />
         </div>
+        <el-button @click="generateNewThumbnail">Generate</el-button>
+        <canvas ref="Canvas" id="myCanvas" style="display: none"></canvas>
       </el-tab-pane>
       <el-tab-pane label="Visible" :name="TAB_EDIT_PRIVACY">
         <p class="video-table__title">Visible</p>
@@ -121,7 +124,7 @@
               </div>
             </el-col>
             <el-col :xs="24" :sm="8" :md="4" :lg="12" :xl="24">
-              <el-button type="primary">Update</el-button>
+              <el-button type="primary" @click="updateThumbnail">Update</el-button>
             </el-col>
           </el-row>
         </el-scrollbar>
@@ -142,8 +145,9 @@ import { isBoolean } from "lodash";
 import { backendUrl, getVideoPath, uploadThumbnailUrl } from "@/services/api";
 import { Video } from "@/utils/types";
 import { UPDATE_MODEL_EVENT } from "element-plus";
-import { PropType, onUpdated } from "vue";
+import { PropType, onUpdated, watch } from "vue";
 import VideoPlayer from "@/components/video-player/index.vue";
+import { Plus } from "@element-plus/icons-vue";
 
 const props = defineProps({
   /**
@@ -173,6 +177,10 @@ const {
   dialogVisible,
   dialogImageUrl,
   currentTab,
+  generateNewThumbnail,
+  videoRef,
+  Canvas,
+  updateThumbnail
 } = useEditVideoDialog();
 
 onUpdated(() => {

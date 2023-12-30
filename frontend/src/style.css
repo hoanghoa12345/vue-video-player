@@ -164,6 +164,12 @@ body {
   column-gap: 4px;
   align-items: center;
 }
+.video-info__like-button {
+  border: none;
+  background: none;
+  outline: none;
+  cursor: pointer;
+}
 /* == Comments == */
 .comments__container {
   background-color: var(--el-bg-color-overlay);

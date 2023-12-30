@@ -16,6 +16,7 @@ const graphqlResolvers = {
       }
     },
     video: async (root, args) => {
+      const { userId } = args;
       try {
         const video = await Video.findById(args.id).populate([
           {
@@ -38,7 +39,17 @@ const graphqlResolvers = {
             ],
           },
         ]);
-
+        console.log("[UserId]:", userId);
+        console.log("[video.likes]:", video.likes);
+        if (userId && Array.isArray(video.likes)) {
+          const isLike = video.likes.some((like) => {
+            if (like.user) return like.user.toString() === userId;
+            return false;
+          });
+          video.isLike = isLike;
+        } else {
+          video.isLike = false;
+        }
         return video;
       } catch (error) {
         throw error;
@@ -286,6 +297,33 @@ const graphqlResolvers = {
         });
       }
       return await video.addReplyToComment(commentId, reply, user._id);
+    },
+    likeVideo: async (root, args, context) => {
+      const user = checkAuth(context.token);
+      if (!user._id)
+        return new GraphQLError("User not found", {
+          extensions: {
+            code: "USER_NOT_FOUND",
+            message: "User not found",
+            http: {
+              status: 400,
+            },
+          },
+        });
+      const { videoId } = args;
+      const video = await Video.findById(videoId);
+      if (!video) {
+        return new GraphQLError("Video not found", {
+          extensions: {
+            code: "VIDEO_NOT_FOUND",
+            message: "Video not found",
+            http: {
+              status: 400,
+            },
+          },
+        });
+      }
+      return await video.like(user._id);
     },
   },
 };

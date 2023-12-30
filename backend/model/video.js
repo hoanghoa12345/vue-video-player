@@ -65,6 +65,17 @@ videoSchema.methods.addComment = async function (commentBody, userId) {
   }
 };
 
+videoSchema.methods.like = async function (userId) {
+  const video = this;
+  if (video.likes.some((like) => like.user.toString() === userId)) {
+    video.likes = video.likes.filter((like) => like.user.toString() !== userId);
+  } else {
+    video.likes.push({ user: userId });
+  }
+  await video.save();
+  return video;
+};
+
 const Video = model("Video", videoSchema);
 
 export default Video;

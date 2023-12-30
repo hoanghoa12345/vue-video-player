@@ -69,7 +69,7 @@ router.post("/thumbnail/:videoFile", async (req, res) => {
   const filename = uuidv4() + ".png";
   const tmpFile = path.join(__dirname, "tmp", req.params.videoFile);
   const thumbnailPath = path.join(__dirname, "tmp", filename);
-  await generateThumbnail(tmpFile, thumbnailPath);
+  await generateThumbnail(tmpFile, thumbnailPath, req.body.time);
   res.send({
     message: "Generated thumbnail",
     videoFile: req.params.videoFile,
