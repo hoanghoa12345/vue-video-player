@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  Ref,
+  watch,
+} from "vue";
 import Hls from "hls.js";
 import { debounce } from "lodash-es";
 import {
@@ -26,6 +34,7 @@ type PlayerState = {
   isVideoHovering: boolean;
   isProgressHovering: boolean;
   isDraggingProgress: boolean;
+  openSetting: boolean;
 };
 
 const props = defineProps({
@@ -42,6 +51,7 @@ const props = defineProps({
 const refVideo: Ref<HTMLMediaElement | null> = ref(null);
 const refPlayerWrap = ref<HTMLElement>();
 const refProgress = ref<HTMLElement>();
+let hls: Hls;
 
 const playerState = reactive<PlayerState>({
   loadStateType: "loadstart",
@@ -56,6 +66,7 @@ const playerState = reactive<PlayerState>({
   isVideoHovering: false,
   isProgressHovering: false,
   isDraggingProgress: false,
+  openSetting: false,
 });
 
 const init = () => {
@@ -73,7 +84,7 @@ const init = () => {
         });
     }
   } else if (Hls.isSupported()) {
-    const hls = new Hls();
+    hls = new Hls();
 
     hls.detachMedia();
     hls.attachMedia(refVideo.value!);
@@ -116,6 +127,12 @@ watch(
 );
 onMounted(() => {
   init();
+});
+
+onBeforeUnmount(() => {
+  if (hls) {
+    hls.destroy();
+  }
 });
 
 const timeFormat = (time: number) => {
@@ -207,10 +224,24 @@ const toggleFullScreen = () => {
     if (el.webkitSupportsFullscreen) {
       el.webkitEnterFullscreen().then(() => {
         playerState.fullScreen = true;
+        screen.orientation
+          .lock("landscape")
+          .catch((error) => console.log(error));
+      });
+    }
+    if (el.mozRequestFullScreen) {
+      el.mozRequestFullScreen().then(() => {
+        playerState.fullScreen = true;
+        screen.orientation
+          .lock("landscape")
+          .catch((error) => console.log(error));
       });
     } else {
       el.requestFullscreen().then(() => {
         playerState.fullScreen = true;
+        screen.orientation
+          .lock("landscape")
+          .catch((error) => console.log(error));
       });
     }
   }
@@ -267,8 +298,45 @@ const mouseUpHandle = () => {
   document.removeEventListener("mouseup", mouseUpHandle);
 };
 
-const mouseMoveProgress = () => {
-  playerState.isProgressHovering = true;
+// Touch progress bar
+const touchStartHandle = (event: TouchEvent) => {
+  event.preventDefault();
+  const refProgressEl = refProgress.value as HTMLElement;
+  if (!playerState.isDraggingProgress) {
+    const rect = refProgressEl.getBoundingClientRect();
+    const x = event.touches[0].clientX - rect.left;
+    const width = rect.width;
+    const progress = x / width;
+    playerState.playerProgress = progress;
+    progressChange(event, progress);
+  }
+
+  playerState.isDraggingProgress = true;
+  document.addEventListener("touchmove", touchMoveHandle);
+  document.addEventListener("touchend", touchEndHandle);
+};
+
+const touchMoveHandle = (event: TouchEvent) => {
+  const refProgressEl = refProgress.value as HTMLElement;
+  if (playerState.isDraggingProgress) {
+    const rect = refProgressEl.getBoundingClientRect();
+    const x = event.touches[0].clientX - rect.left;
+    const width = rect.width;
+    const progress = x / width;
+    playerState.playerProgress = progress;
+    progressChange(event, progress);
+  }
+};
+
+const touchEndHandle = () => {
+  playerState.isDraggingProgress = false;
+  document.removeEventListener("touchmove", touchMoveHandle);
+  document.removeEventListener("touchend", touchEndHandle);
+};
+
+// Setting Menu
+const openSettingMenu = () => {
+  playerState.openSetting = !playerState.openSetting;
 };
 
 const loadProgressStyle = computed(() => {
@@ -281,14 +349,21 @@ const playProgressStyle = computed(() => {
   return `width: ${value}%`;
 });
 
+const showPlayerControl = computed(() => {
+  if (playerState.isVideoHovering) return true;
+  if (playerState.playBtnState === "play") return true;
+  return false;
+});
+
 defineExpose({
-  refVideo
-})
+  refVideo,
+});
 </script>
 
 <template>
   <div
     class="player-wrapper"
+    :class="playerState.fullScreen ? 'player-wrapper__fullscreen' : null"
     ref="refPlayerWrap"
     @mousemove="mouseMoveWarp"
     @mouseleave="playerState.isVideoHovering = false">
@@ -317,18 +392,20 @@ defineExpose({
     </Transition>
 
     <Transition>
-      <div
-        class="player-controls"
-        v-show="
-          playerState.isVideoHovering || playerState.playBtnState === 'play'
-        ">
+      <div class="player-controls" v-show="showPlayerControl">
         <div
           ref="refProgress"
           class="player__slider player__progress__container"
-          @mousemove="mouseMoveProgress"
+          @mousemove="playerState.isProgressHovering = true"
+          @touchmove="playerState.isProgressHovering = true"
           @mousedown.stop="mouseDownHandle"
-          @mouseup.stop="mouseUpHandle">
-          <div class="player__progress__holder" @mousemove="mouseMoveHandle">
+          @mouseup.stop="mouseUpHandle"
+          @touchstart="touchStartHandle"
+          @touchend="touchEndHandle">
+          <div
+            class="player__progress__holder"
+            @mousemove="mouseMoveHandle"
+            @touchmove="touchMoveHandle">
             <div
               class="player__load__progress"
               :style="loadProgressStyle"></div>
@@ -368,13 +445,23 @@ defineExpose({
           class="player__volume__slider"
           v-model="playerState.volume" />
         <div class="player__times__span">
-          <span>{{ playerState.currentTime }}</span
-          ><i>{{ " / " }}</i
-          ><span>{{ playerState.totalTime }}</span>
+          <span
+            >{{ playerState.currentTime }} {{ " / " }}
+            {{ playerState.totalTime }}</span
+          >
         </div>
         <div class="player__control--spacer"></div>
-        <button class="player__button" title="Settings">
-          <el-icon :size="24">
+        <button
+          class="player__button"
+          title="Settings"
+          @click="openSettingMenu">
+          <el-icon
+            :size="24"
+            class="player__setting-icon"
+            :class="
+              playerState.openSetting ? 'player__setting--expanded' : null
+            "
+            aria-expanded="false">
             <SettingIcon />
           </el-icon>
         </button>
@@ -400,6 +487,10 @@ defineExpose({
   position: relative;
   padding-bottom: 56.25%;
   height: 0;
+}
+.player-wrapper__fullscreen {
+  height: 100%;
+  padding-bottom: 0 !important;
 }
 video {
   position: absolute;
@@ -546,6 +637,12 @@ video {
   padding: 0.75rem;
   color: white;
   outline: none;
+}
+.player__setting-icon {
+  transition: all 0.3s ease-in-out;
+}
+.player__setting--expanded {
+  transform: rotate(45deg);
 }
 .v-enter-active,
 .v-leave-active {

@@ -112,6 +112,12 @@ body {
 .radio-group__button--end {
   padding: 1rem;
 }
+.video-edit__video-preview {
+  flex: 1;
+}
+.video-edit__image-thumbnail {
+  flex: 1;
+}
 .video-player__wrapper {
   width: 32rem;
   height: auto;
@@ -126,6 +132,10 @@ body {
 .video-dialog__thumbnail-wrapper {
   margin-top: 0.5rem;
   margin-left: 0.5rem;
+}
+.video-edit__thumbnail-preview {
+  display: flex;
+  column-gap: 1rem;
 }
 /* == Video detail == */
 .video__user-upload {

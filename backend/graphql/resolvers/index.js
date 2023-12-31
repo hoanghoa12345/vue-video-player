@@ -39,8 +39,8 @@ const graphqlResolvers = {
             ],
           },
         ]);
-        console.log("[UserId]:", userId);
-        console.log("[video.likes]:", video.likes);
+        // console.log("[UserId]:", userId);
+        // console.log("[video.likes]:", video.likes);
         if (userId && Array.isArray(video.likes)) {
           const isLike = video.likes.some((like) => {
             if (like.user) return like.user.toString() === userId;

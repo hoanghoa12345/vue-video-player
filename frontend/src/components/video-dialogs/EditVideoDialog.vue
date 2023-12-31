@@ -43,15 +43,7 @@
       </el-tab-pane>
       <el-tab-pane label="Video" :name="TAB_EDIT_VIDEO">
         <p class="video-table__title">Video</p>
-        <div class="video-player__wrapper">
-          <video-player
-            ref="videoRef"
-            :src="getVideoPath(videoData?.filePath)"
-            :auto-play="false"
-            controls />
-        </div>
-        <el-button @click="generateNewThumbnail">Generate</el-button>
-        <canvas ref="Canvas" id="myCanvas" style="display: none"></canvas>
+        <p>{{ formEditData.filePath }}</p>
       </el-tab-pane>
       <el-tab-pane label="Visible" :name="TAB_EDIT_PRIVACY">
         <p class="video-table__title">Visible</p>
@@ -74,59 +66,62 @@
       <el-tab-pane label="Thumbnail" :name="TAB_EDIT_THUMB">
         <el-scrollbar height="36rem">
           <p class="video-table__title">Thumbnail</p>
-          <el-row :gutter="8">
-            <el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="6">
-              <div class="video-edit__image-thumbnail">
+          <div class="video-edit__thumbnail-preview">
+            <div class="video-edit__video-preview">
+              <div class="video-player__wrapper">
+                <video-player
+                  ref="videoRef"
+                  :src="getVideoPath(videoData?.filePath)"
+                  :auto-play="false" />
+              </div>
+              <canvas ref="Canvas" id="myCanvas" style="display: none"></canvas>
+              <p>Generate new thumbnail:</p>
+              <el-button @click="generateNewThumbnail">Generate</el-button>
+            </div>
+            <div class="video-edit__image-thumbnail">
+              <el-image
+                class="video-edit__image-inner"
+                :src="`${backendUrl}/image/${videoData?.thumbnail}`"
+                fit="contain" />
+            </div>
+          </div>
+          <div class="video-dialog__thumbnail-wrapper">
+            <span class="step-thumbnail__label-text">Choose thumbnail:</span>
+            <div class="video-dialog__upload-thumbnail">
+              <el-upload
+                class="step-thumbnail__upload"
+                v-model:file-list="thumbnailList"
+                :action="uploadThumbnailUrl"
+                list-type="picture-card"
+                :auto-upload="false"
+                :multiple="false"
+                :on-success="getUploadedImage"
+                :on-error="showErrorMsg"
+                :on-preview="handlePictureCardPreview"
+                accept="image/*">
+                <el-icon><Plus /></el-icon>
+              </el-upload>
+
+              <el-dialog v-model="dialogVisible">
                 <el-image
-                  class="video-edit__image-inner"
-                  :src="`${backendUrl}/image/${videoData?.thumbnail}`"
-                  fit="contain" />
-              </div>
-            </el-col>
-            <el-col :xs="24" :sm="12" :md="12" :lg="24" :xl="24">
-              <div class="video-dialog__thumbnail-wrapper">
-                <span class="step-thumbnail__label-text"
-                  >Choose thumbnail:</span
+                  w-full
+                  :src="dialogImageUrl"
+                  fit="cover"
+                  alt="Preview Image" />
+              </el-dialog>
+
+              <el-radio-group v-model="formEditData.thumbnail" class="ml-4">
+                <el-radio
+                  v-for="item in thumbnailList"
+                  :key="item.url"
+                  :label="item.name"
+                  size="large"
+                  >{{ item.name }}</el-radio
                 >
-                <div class="video-dialog__upload-thumbnail">
-                  <el-upload
-                    class="step-thumbnail__upload"
-                    v-model:file-list="thumbnailList"
-                    :action="uploadThumbnailUrl"
-                    list-type="picture-card"
-                    :auto-upload="false"
-                    :multiple="false"
-                    :on-success="getUploadedImage"
-                    :on-error="showErrorMsg"
-                    :on-preview="handlePictureCardPreview"
-                    accept="image/*">
-                    <el-icon><Plus /></el-icon>
-                  </el-upload>
-
-                  <el-dialog v-model="dialogVisible">
-                    <el-image
-                      w-full
-                      :src="dialogImageUrl"
-                      fit="cover"
-                      alt="Preview Image" />
-                  </el-dialog>
-
-                  <el-radio-group v-model="formEditData.thumbnail" class="ml-4">
-                    <el-radio
-                      v-for="item in thumbnailList"
-                      :key="item.url"
-                      :label="item.name"
-                      size="large"
-                      >{{ item.name }}</el-radio
-                    >
-                  </el-radio-group>
-                </div>
-              </div>
-            </el-col>
-            <el-col :xs="24" :sm="8" :md="4" :lg="12" :xl="24">
-              <el-button type="primary" @click="updateThumbnail">Update</el-button>
-            </el-col>
-          </el-row>
+              </el-radio-group>
+            </div>
+          </div>
+          <el-button type="primary" @click="updateThumbnail">Update</el-button>
         </el-scrollbar>
       </el-tab-pane>
     </el-tabs>
@@ -180,7 +175,7 @@ const {
   generateNewThumbnail,
   videoRef,
   Canvas,
-  updateThumbnail
+  updateThumbnail,
 } = useEditVideoDialog();
 
 onUpdated(() => {
