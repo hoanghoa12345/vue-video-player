@@ -152,7 +152,6 @@
 import {
   UserFilled,
   ChatDotRound,
-  ArrowUpBold,
   ArrowDownBold,
 } from "@element-plus/icons-vue";
 import { useMutation } from "villus";
