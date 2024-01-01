@@ -1,3 +1,5 @@
+scalar Date
+
 type Video {
   _id: ID!
   title: String!
@@ -44,6 +46,16 @@ type Like {
   createdAt: String!
 }
 
+type Channel {
+  name: String!
+  description: String!
+  coverImage: String!
+  avatarImage: String!
+  member: [User]
+  createdAt: Date!
+  createdBy: User!
+}
+
 input UserInput {
   name: String!
   email: String!
@@ -62,15 +74,22 @@ input VideoInput {
   privacy: Int!
 }
 
+input LoginPayload {
+  email: String!
+  password: String!
+}
+
+input ChannelInput {
+  name: String!
+  description: String!
+  coverImage: String
+  avatarImage: String
+}
+
 type Query {
   videos: [Video!]
   video(id: String, userId: String): Video!
   videosRelated(id: String): [Video!]
-}
-
-input LoginPayload {
-  email: String!
-  password: String!
 }
 
 type Mutation {
@@ -84,6 +103,7 @@ type Mutation {
   createComment(videoId: ID!, comment: String!): Comment
   replyComment(videoId: ID!, commentId: ID!, reply: String!): Comment
   likeVideo(videoId: ID!): Video
+  createChannel(channelInput: ChannelInput): Channel
 }
 
 schema {

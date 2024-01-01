@@ -55,8 +55,13 @@
                   </svg>
                 </el-icon>
                 <el-icon :size="16" v-if="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-                    <path fill="currentColor"
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="512"
+                    height="512"
+                    viewBox="0 0 512 512">
+                    <path
+                      fill="currentColor"
                       d="m256 448l-9-6c-42.78-28.57-96.91-60.86-137-108.32c-42.25-50-62.52-101.35-62-157C48.63 114.54 98.46 64 159.08 64c48.11 0 80.1 28 96.92 48.21C272.82 92 304.81 64 352.92 64c60.62 0 110.45 50.54 111.08 112.65c.56 55.68-19.71 107-62 157c-40.09 47.49-94.22 79.78-137 108.35Z" />
                   </svg>
                 </el-icon>
@@ -82,11 +87,25 @@
             type="primary"
             @click="openReplyCollapse(commentIndex)"
             link>
-            {{ comment.replies.length }} Replies &nbsp; <el-icon :class="`reply__icon ${reply.length > 0 && reply[commentIndex].view ? 'reply__icon--up' : ''}`"><ArrowDownBold /></el-icon>
+            {{ comment.replies.length }} Replies &nbsp;
+            <el-icon
+              :class="`reply__icon ${
+                reply.length > 0 && reply[commentIndex].view
+                  ? 'reply__icon--up'
+                  : ''
+              }`"
+              ><ArrowDownBold
+            /></el-icon>
           </el-button>
           <div v-if="reply.length > 0 && reply[commentIndex].view === true">
-            <div class="comment__replies" v-if="comment.replies" v-for="replyCommentItem in comment.replies" :key="replyCommentItem._id">
-              <el-avatar>{{ getUsernameInitial(replyCommentItem.user.name) }}</el-avatar>
+            <div
+              class="comment__replies"
+              v-if="comment.replies"
+              v-for="replyCommentItem in comment.replies"
+              :key="replyCommentItem._id">
+              <el-avatar>{{
+                getUsernameInitial(replyCommentItem.user.name)
+              }}</el-avatar>
               <div class="comment__inner">
                 <p class="comment__info">
                   <span class="comment__username">{{ comment.user.name }}</span>
@@ -130,9 +149,14 @@
 </template>
 
 <script setup lang="ts">
-import { UserFilled, ChatDotRound, ArrowUpBold, ArrowDownBold } from "@element-plus/icons-vue";
+import {
+  UserFilled,
+  ChatDotRound,
+  ArrowUpBold,
+  ArrowDownBold,
+} from "@element-plus/icons-vue";
 import { useMutation } from "villus";
-import { PropType, onMounted, ref } from "vue";
+import { PropType, onMounted, ref, watch } from "vue";
 import { CreateComment, ReplyComment } from "@/services/graphql";
 import { ElMessage } from "element-plus";
 import { Comment } from "@/utils/types";
@@ -225,12 +249,25 @@ const replyToComment = (commentId: string) => {
 };
 
 const openReplyCollapse = (commentIndex: number) => {
-  if(reply.value.length > 0) {
+  if (reply.value.length > 0) {
     reply.value[commentIndex].view = !reply.value[commentIndex].view;
   }
   // console.log('[info]: Open reply collapse', JSON.stringify(reply.value));
-  
-}
+};
+
+watch(
+  () => props.comments,
+  (newValue) => {
+    newValue.forEach((commentItem) => {
+      reply.value.push({
+        commentId: commentItem._id,
+        open: false,
+        comment: "",
+        view: false,
+      });
+    });
+  }
+);
 
 onMounted(() => {
   if (Array.isArray(props.comments)) {

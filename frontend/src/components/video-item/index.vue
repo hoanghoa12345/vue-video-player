@@ -9,6 +9,7 @@ import { UserFilled } from "@element-plus/icons-vue";
 import _ from "lodash-es";
 import { Video } from "@/utils/types";
 import { backendUrl } from "@/services/api";
+import defaultImage from "@/assets/video-placeholder.webp";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/en";
@@ -25,14 +26,14 @@ const props = defineProps<{ video: Video }>();
       class="thumbnail"
       :aria-label="props.video.title"
       :title="props.video.title">
-      <img
+      <el-image
         class="thumbnail__image"
-        :src="
-          props.video.thumbnail
-            ? `${backendUrl}/image/${props.video.thumbnail}`
-            : '/src/assets/thumbnail-placeholder.webp'
-        "
-        alt="" />
+        :src="`${backendUrl}/image/${props.video.thumbnail}`"
+        :alt="props.video.title">
+        <template #placeholder>
+          <img class="thumbnail__image" :src="defaultImage" alt="" />
+        </template>
+      </el-image>
     </router-link>
     <div class="video-bottom-section">
       <router-link :to="`/channel/${props.video.uploadedBy._id}`">
@@ -48,12 +49,12 @@ const props = defineProps<{ video: Video }>();
         <router-link
           type="info"
           :to="`/channel/${props.video.uploadedBy._id}`"
-          class="el-link el-link--info"
-          ><b>{{ props.video.uploadedBy.name }}</b></router-link
+          class="el-link el-link--info video-item__channel-name"
+          ><span>{{ props.video.uploadedBy.name }}</span></router-link
         >
         <div class="video-metadata el-link el-link--info">
           <span>{{ props.video.views }} views</span>
-          •
+          &nbsp; • &nbsp;
           <span>{{ dayjs(+props.video.createdAt).fromNow() }}</span>
         </div>
       </div>
@@ -68,6 +69,8 @@ const props = defineProps<{ video: Video }>();
 }
 .thumbnail__image {
   width: 100%;
+  border-radius: 0.375rem;
+  min-height: 10rem;
 }
 img.placeholder {
   -webkit-filter: grayscale(100%);
@@ -95,8 +98,18 @@ img.placeholder {
   -webkit-line-clamp: 2;
   height: 2.6rem;
   text-overflow: ellipsis;
+  color: var(--el-text-color-primary);
+  font-weight: 600;
 }
 .el-link {
   justify-content: flex-start;
+}
+.video-item__channel-name {
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.video-metadata {
+  font-size: 12px;
 }
 </style>

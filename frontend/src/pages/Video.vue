@@ -10,7 +10,7 @@ import {
   VideosRelated,
 } from "@/services/graphql";
 import { backendUrl, getVideoPath } from "@/services/api";
-import defaultThumbnailVideo from "@/assets/thumbnail-placeholder.webp";
+import defaultThumbnailVideo from "@/assets/video-placeholder.webp";
 import Comments from "@/components/video-comments/Comments.vue";
 import { useTitle } from "@vueuse/core";
 import _ from "lodash-es";
@@ -64,8 +64,8 @@ onMounted(() => {
 });
 
 onUpdated(() => {
-  console.log("On Updated");
-  console.log("[info] Video ID: ", route.params.id);
+  // console.log("On Updated");
+  // console.log("[info] Video ID: ", route.params.id);
   fetchVideo({
     variables: {
       id: route.params.id,
@@ -183,13 +183,14 @@ watch(
               role="button"
               v-show="data.video.description.length > 200"
               @click="showMore = true"
+              class="button__view-more"
               >View more</span
             ></span
           >
           <span v-else class="video-description"
             >{{ data.video.description
-            }}<span role="button" @click="showMore = false"
-              >View less</span
+            }}<span class="button__view-more" role="button" @click="showMore = false"
+              >&nbsp; View less</span
             ></span
           >
           <Comments
@@ -198,7 +199,7 @@ watch(
         </div>
       </div>
 
-      <el-result v-if="error" title="404" sub-title="Sorry, request error">
+      <el-result v-else-if="error" title="404" sub-title="Sorry, request error">
         <template #icon>
           <el-image :src="defaultThumbnailVideo" />
         </template>
@@ -213,14 +214,19 @@ watch(
         v-for="video in videosRelated?.videosRelated"
         :key="video._id">
         <router-link :to="{ name: 'Video', params: { id: video._id } }">
-          <img
+          <el-image
             class="video-thumbnail__image"
-            height="100"
             :src="backendUrl + '/image/' + video.thumbnail"
-            :src-data="defaultThumbnailVideo"
-            :alt="video.title" />
+            :alt="video.title">
+            <template #placeholder>
+              <img
+                class="video-thumbnail__image"
+                :src="defaultThumbnailVideo"
+                alt="" />
+            </template>
+          </el-image>
         </router-link>
-        <div style="margin-left: 1rem">
+        <div class="video-thumbnail__content">
           <span class="video-thumbnail__title">{{ video.title }}</span>
           <div
             class="el-link el-link--info video-info video-thumbnail__description">
@@ -229,6 +235,21 @@ watch(
           </div>
         </div>
       </div>
+      <el-skeleton
+        :loading="isLoading"
+        v-for="skeletonItem in 10"
+        :key="skeletonItem"
+        class="video-skeleton__wrapper"
+        :animated="true">
+        <template #template>
+          <el-skeleton-item variant="image" class="video-skeleton__image" />
+          <div class="video-skeleton__description">
+            <el-skeleton-item variant="p" style="width: 100%" />
+            <el-skeleton-item variant="p" style="width: 30%" />
+            <el-skeleton-item variant="p" style="width: 60%" />
+          </div>
+        </template>
+      </el-skeleton>
     </el-col>
   </el-row>
 </template>
@@ -254,6 +275,9 @@ watch(
   flex-direction: column;
   align-items: flex-start;
 }
+.video-thumbnail__content {
+  margin-left: 1rem;
+}
 .video-thumbnail__title {
   font-size: 14px;
 }
@@ -265,7 +289,8 @@ watch(
   margin-block-end: 0.5rem;
 }
 .video-thumbnail__image {
-  height: 100px;
+  height: 6.25rem;
+  width: 10.75rem;
   border-radius: 0.25rem;
 }
 </style>
