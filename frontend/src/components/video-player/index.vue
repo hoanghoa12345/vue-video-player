@@ -20,6 +20,8 @@ import {
   ExitFullscreenIcon,
   EnterFullscreenIcon,
 } from "@/components/icons";
+import { ElLoading } from 'element-plus'
+import { LoadingInstance } from "element-plus/es/components/loading/src/loading";
 
 type PlayerState = {
   loadStateType: string;
@@ -52,6 +54,7 @@ const refVideo: Ref<HTMLMediaElement | null> = ref(null);
 const refPlayerWrap = ref<HTMLElement>();
 const refProgress = ref<HTMLElement>();
 let hls: Hls;
+let loadingVideo: LoadingInstance;
 
 const playerState = reactive<PlayerState>({
   loadStateType: "loadstart",
@@ -153,6 +156,10 @@ const onTimeUpdate = (event: Event) => {
 };
 
 const onCanPlay = (event: Event) => {
+  playerState.loadStateType = "canPlay"
+  if(loadingVideo) {
+    loadingVideo.close();
+  }
   if (playerState.playBtnState !== "play") {
     if (refVideo.value) {
       refVideo.value.play();
@@ -198,6 +205,16 @@ const onProgress = (event: Event) => {
     videoElement.buffered.length && videoElement.buffered.end(length - 1);
   playerState.preloadBar = end / duration;
 };
+
+const onLoadStart = (event: Event) => {
+  playerState.loadStateType = "loadStart"
+  loadingVideo = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)',
+    target: refPlayerWrap.value,
+  })
+}
 
 const togglePlay = () => {
   if (playerState.playBtnState === "play") {
@@ -376,10 +393,12 @@ defineExpose({
         @timeupdate="onTimeUpdate"
         @canplay="onCanPlay"
         @ended="onEnded"
-        @progress="onProgress" />
+        @progress="onProgress"
+        @loadstart="onLoadStart" />
+      <div class="player__poster" @click="togglePlay"></div>
     </div>
-    <Transition v-if="playerState.playBtnState === 'play'">
-      <div class="player__big-play-button">
+    <Transition>
+      <div class="player__big-play-button" v-if="playerState.playBtnState === 'play'">
         <button @click="togglePlay" class="player__button" title="Play">
           <el-icon :size="48" v-if="playerState.playBtnState === 'play'">
             <PlayIcon />
@@ -498,6 +517,21 @@ video {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.player__poster {
+  background-color: #000;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 100%;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.2s ease;
+  width: 100%;
+  z-index: 1;
 }
 .player-controls {
   position: absolute;
@@ -629,6 +663,7 @@ video {
   left: 50%;
   transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
+  z-index: 2;
 }
 .player__big-play-button .player__button {
   cursor: pointer;
