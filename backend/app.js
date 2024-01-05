@@ -3,7 +3,6 @@ import { createYoga } from "graphql-yoga";
 import mongoose from "mongoose";
 import graphqlSchema from "./graphql/schema/index.js";
 import cors from "cors";
-import rateLimit from "express-rate-limit";
 import * as dotenv from "dotenv";
 import multer from "multer";
 import ffmpeg from "fluent-ffmpeg";
@@ -23,25 +22,22 @@ const upload = multer({
 const __dirname = path.resolve(path.dirname(""));
 dotenv.config();
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  handler: function (req, res) {
-    res.status(429).send({
-      status: 429,
-      message: "Too many requests, please try again later.!",
-    });
-  },
-});
-
 const app = express();
 
 const allowOrigin = /*process.env.ALLOW_ORIGIN_URL ||*/ "*";
 app.use(cors({ origin: allowOrigin, optionsSuccessStatus: 200 }));
-// Apply the rate limiting middleware to all requests
-app.use(limiter);
+
+const optionsStatic = {
+  dotfiles: "ignore",
+  etag: false,
+  extensions: ["htm", "html", "css", "js", "ico", "jpg", "jpeg", "png", "svg"],
+  index: ["index.html"],
+  maxAge: "1m",
+  redirect: false,
+};
+app.use(
+  express.static(path.join(__dirname, "../frontend/dist"), optionsStatic)
+);
 
 const graphQLServer = createYoga({
   schema: graphqlSchema,
@@ -200,6 +196,10 @@ app.get("/duration/:videoFile", (req, res) => {
 });
 
 app.use("/api/video", videoRoute);
+
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
 
 const mongodbUri = process.env.MONGODB_URI;
 

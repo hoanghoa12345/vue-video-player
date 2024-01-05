@@ -16,6 +16,8 @@
     "dev:frontend": "yarn workspace frontend run dev --host",
     "start:backend": "yarn workspace backend run start",
     "preview:frontend": "yarn workspace frontend run preview",
-    "build:frontend": "yarn workspace frontend run build"
+    "build:frontend": "yarn workspace frontend run build",
+    "start": "npm run start --workspace=backend",
+    "build": "npm run build --workspace=frontend"
   }
 }
