@@ -30,6 +30,12 @@
                 type="textarea"
                 :autosize="{ minRows: 8, maxRows: 12 }" />
             </el-form-item>
+            <el-form-item label="Video URL" prop="filePath">
+              <el-input v-model="formEditData.filePath" type="text" />
+            </el-form-item>
+            <el-form-item label="Thumbnail URL" prop="thumbnail">
+              <el-input v-model="formEditData.thumbnail" type="text" />
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onSubmitEdit(formEditRef)"
                 >Save</el-button
@@ -71,7 +77,8 @@
               <div class="video-player__wrapper">
                 <video-player
                   ref="videoRef"
-                  :src="getVideoPath(videoData?.filePath)"
+                  v-if="videoData?.filePath"
+                  :src="videoData?.filePath"
                   :auto-play="false" />
               </div>
               <canvas ref="Canvas" id="myCanvas" style="display: none"></canvas>
@@ -81,7 +88,7 @@
             <div class="video-edit__image-thumbnail">
               <el-image
                 class="video-edit__image-inner"
-                :src="`${backendUrl}/image/${videoData?.thumbnail}`"
+                :src="`${videoData?.thumbnail}`"
                 fit="contain" />
             </div>
           </div>

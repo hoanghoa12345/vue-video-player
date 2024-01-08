@@ -152,3 +152,22 @@ export const LikeVideo = /* GraphQL */ `
     }
   }
 `;
+
+export const CreateVideo = /* GraphQL */ `
+  mutation CreateVideo($video: VideoInput!) {
+    createVideo(video: $video) {
+      _id
+      title
+      description
+      filePath
+      privacy
+      thumbnail
+      duration
+      createdAt
+      uploadedBy {
+        _id
+      }
+      views
+    }
+  }
+`;

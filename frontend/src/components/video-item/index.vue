@@ -28,10 +28,19 @@ const props = defineProps<{ video: Video }>();
       :title="props.video.title">
       <el-image
         class="thumbnail__image"
-        :src="`${backendUrl}/image/${props.video.thumbnail}`"
+        :src="`${props.video.thumbnail}`"
         :alt="props.video.title">
         <template #placeholder>
           <img class="thumbnail__image" :src="defaultImage" alt="" />
+        </template>
+        <template #error>
+          <div class="image-slot">
+            <el-icon :size="32">
+              <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
+              </svg>
+            </el-icon>
+          </div>
         </template>
       </el-image>
     </router-link>

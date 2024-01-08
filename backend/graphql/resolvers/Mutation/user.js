@@ -1,17 +1,18 @@
 import { getRefreshToken, getToken } from "../../../utils/helper.js";
 import RefreshToken from "../../../model/refreshToken.js";
 import User from "../../../model/user.js";
+import { GraphQLError } from "graphql";
 
 const user = {
   createUser: async (_, args) => {
-    const { name, email, password, roles, image } = args.user;
+    const { name, email, password, roles, profilePic } = args.user;
     try {
       const user = new User({
         name,
         email,
         password,
         roles,
-        image,
+        profilePic,
       });
       const userExists = await User.findOne({ email });
 
@@ -26,7 +27,7 @@ const user = {
         email: newUser.email,
         password: newUser.password,
         roles: newUser.roles,
-        image: newUser.image,
+        profilePic: newUser.profilePic,
         token: getToken(newUser),
       };
     } catch (error) {
@@ -50,7 +51,7 @@ const user = {
           email: user.email,
           password: "",
           roles: user.roles,
-          image: user.image,
+          profilePic: user.profilePic,
           token: getToken(user),
           refresh_token: refreshToken,
         };
@@ -77,7 +78,15 @@ const user = {
       return getToken({ _id: tokenItem.user });
     }
 
-    throw Error("Cannot refresh token");
+    throw GraphQLError("Cannot refresh token", {
+      extensions: {
+        code: "BAD_REQUEST",
+        message: "Cannot refresh token",
+        http: {
+          status: 500,
+        },
+      },
+    });
   },
   logout: async (root, args) => {
     const tokenInput = args.token;

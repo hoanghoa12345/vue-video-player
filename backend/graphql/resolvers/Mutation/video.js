@@ -78,6 +78,7 @@ const video = {
     const updateData = {
       title: title || video.title,
       description: description || video.description,
+      filePath: filePath || video.filePath,
       thumbnail: thumbnail || video.thumbnail,
       privacy: privacy || video.privacy,
     };

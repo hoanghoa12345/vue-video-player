@@ -18,7 +18,7 @@ const form = reactive({
 const LoginMutation = `
   mutation Login ($payload: LoginPayload) {
     login(payload: $payload) {
-          _id
+        _id
         name
         email
         password

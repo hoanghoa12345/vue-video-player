@@ -11,7 +11,7 @@ if (user) {
     email: "",
     password: "",
     roles: [""],
-    image: "",
+    profilePic: "",
     token: "",
     refresh_token: "",
   };
@@ -23,7 +23,7 @@ export const useUserStore = defineStore({
     name: userInfo.name,
     email: userInfo.email,
     roles: userInfo.roles,
-    image: userInfo.image,
+    profilePic: userInfo.profilePic,
     token: userInfo.token,
     refresh_token: userInfo.refresh_token,
   }),
@@ -35,7 +35,7 @@ export const useUserStore = defineStore({
         name: "",
         email: "",
         roles: [],
-        image: "",
+        profilePic: "",
         token: "",
         refresh_token: "",
       });
@@ -46,7 +46,7 @@ export const useUserStore = defineStore({
         name: user.name,
         email: user.email,
         roles: user.roles,
-        image: user.image,
+        profilePic: user.profilePic,
         token: user.token,
         refresh_token: user.refresh_token,
       });

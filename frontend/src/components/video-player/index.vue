@@ -20,8 +20,8 @@ import {
   ExitFullscreenIcon,
   EnterFullscreenIcon,
 } from "@/components/icons";
-import { ElLoading } from 'element-plus'
-import { LoadingInstance } from "element-plus/es/components/loading/src/loading";
+// import { ElLoading } from 'element-plus'
+// import { LoadingInstance } from "element-plus/es/components/loading/src/loading";
 
 type PlayerState = {
   loadStateType: string;
@@ -54,7 +54,7 @@ const refVideo: Ref<HTMLMediaElement | null> = ref(null);
 const refPlayerWrap = ref<HTMLElement>();
 const refProgress = ref<HTMLElement>();
 let hls: Hls;
-let loadingVideo: LoadingInstance;
+// let loadingVideo: LoadingInstance;
 
 const playerState = reactive<PlayerState>({
   loadStateType: "loadstart",
@@ -157,9 +157,9 @@ const onTimeUpdate = (event: Event) => {
 
 const onCanPlay = (event: Event) => {
   playerState.loadStateType = "canPlay"
-  if(loadingVideo) {
-    loadingVideo.close();
-  }
+  // if(loadingVideo) {
+  //   loadingVideo.close();
+  // }
   if (playerState.playBtnState !== "play") {
     if (refVideo.value) {
       refVideo.value.play();
@@ -208,12 +208,12 @@ const onProgress = (event: Event) => {
 
 const onLoadStart = (event: Event) => {
   playerState.loadStateType = "loadStart"
-  loadingVideo = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
-    target: refPlayerWrap.value,
-  })
+  // loadingVideo = ElLoading.service({
+  //   lock: true,
+  //   text: 'Loading',
+  //   background: 'rgba(0, 0, 0, 0.7)',
+  //   target: refPlayerWrap.value,
+  // })
 }
 
 const togglePlay = () => {

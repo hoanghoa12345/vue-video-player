@@ -83,7 +83,7 @@ watch(data, (data) => {
     album: data.video.title,
     artwork: [
       {
-        src: `${backendUrl}/image/${data.video.thumbnail}`,
+        src: `${data.video.thumbnail}`,
         sizes: "640x360",
         type: "image/png",
       },
@@ -117,9 +117,7 @@ watch(
       :lg="16"
       :xl="16">
       <div v-if="data">
-        <VideoPlayer
-          :src="getVideoPath(data.video.filePath)"
-          :auto-play="true" />
+        <VideoPlayer :src="data.video.filePath" :auto-play="true" />
         <div>
           <h3 class="video-title">{{ data.video.title }}</h3>
           <div class="video-info__wrapper">
@@ -194,13 +192,32 @@ watch(
         <router-link :to="{ name: 'Video', params: { id: video._id } }">
           <el-image
             class="video-thumbnail__image"
-            :src="backendUrl + '/image/' + video.thumbnail"
+            :src="video.thumbnail"
             :alt="video.title">
             <template #placeholder>
               <img
                 class="video-thumbnail__image"
                 :src="defaultThumbnailVideo"
                 alt="" />
+            </template>
+            <template #error>
+              <div class="image-slot">
+                <el-icon :size="24">
+                  <svg
+                    data-slot="icon"
+                    fill="none"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
+                  </svg>
+                </el-icon>
+              </div>
             </template>
           </el-image>
         </router-link>
@@ -271,5 +288,15 @@ watch(
   height: 6.25rem;
   width: 10.75rem;
   border-radius: 0.25rem;
+}
+.image-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
+  font-size: 30px;
 }
 </style>
