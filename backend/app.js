@@ -35,7 +35,7 @@ const graphQLServer = createYoga({
   maskedErrors: {
     isDev: true,
   },
-  graphiql: true,
+  graphiql: process.env.NODE_ENV === "development" ? true : false,
   logging: false,
 });
 
