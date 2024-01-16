@@ -73,7 +73,9 @@ const playerState = reactive<PlayerState>({
 });
 
 const init = () => {
-  if (refVideo.value?.canPlayType("application/vnd.apple.mpegurl")) {
+  if (refVideo.value?.canPlayType("video/mp4")) {
+    refVideo.value.src = props.src;
+  } else if (refVideo.value?.canPlayType("application/vnd.apple.mpegurl")) {
     refVideo.value.src = props.src;
     const promise = refVideo.value?.play();
     if (promise !== undefined) {
@@ -377,23 +379,13 @@ defineExpose({
 });
 </script>
 
+
 <template>
-  <div
-    class="player-wrapper"
-    :class="playerState.fullScreen ? 'player-wrapper__fullscreen' : null"
-    ref="refPlayerWrap"
-    @mousemove="mouseMoveWarp"
-    @mouseleave="playerState.isVideoHovering = false">
+  <div class="player-wrapper" :class="playerState.fullScreen ? 'player-wrapper__fullscreen' : null" ref="refPlayerWrap"
+    @mousemove="mouseMoveWarp" @mouseleave="playerState.isVideoHovering = false">
     <div class="player__video">
-      <video
-        ref="refVideo"
-        :muted="playerState.muted"
-        :volume="playerState.volume"
-        @play="onPlay"
-        @timeupdate="onTimeUpdate"
-        @canplay="onCanPlay"
-        @ended="onEnded"
-        @progress="onProgress"
+      <video ref="refVideo" :muted="playerState.muted" :volume="playerState.volume" @play="onPlay"
+        @timeupdate="onTimeUpdate" @canplay="onCanPlay" @ended="onEnded" @progress="onProgress"
         @loadstart="onLoadStart" />
       <div class="player__poster" @click="togglePlay"></div>
     </div>
@@ -412,25 +404,13 @@ defineExpose({
 
     <Transition>
       <div class="player-controls" v-show="showPlayerControl">
-        <div
-          ref="refProgress"
-          class="player__slider player__progress__container"
-          @mousemove="playerState.isProgressHovering = true"
-          @touchmove="playerState.isProgressHovering = true"
-          @mousedown.stop="mouseDownHandle"
-          @mouseup.stop="mouseUpHandle"
-          @touchstart="touchStartHandle"
+        <div ref="refProgress" class="player__slider player__progress__container"
+          @mousemove="playerState.isProgressHovering = true" @touchmove="playerState.isProgressHovering = true"
+          @mousedown.stop="mouseDownHandle" @mouseup.stop="mouseUpHandle" @touchstart="touchStartHandle"
           @touchend="touchEndHandle">
-          <div
-            class="player__progress__holder"
-            @mousemove="mouseMoveHandle"
-            @touchmove="touchMoveHandle">
-            <div
-              class="player__load__progress"
-              :style="loadProgressStyle"></div>
-            <div
-              class="player__play__progress"
-              :style="playProgressStyle"></div>
+          <div class="player__progress__holder" @mousemove="mouseMoveHandle" @touchmove="touchMoveHandle">
+            <div class="player__load__progress" :style="loadProgressStyle"></div>
+            <div class="player__play__progress" :style="playProgressStyle"></div>
           </div>
         </div>
 
@@ -456,38 +436,19 @@ defineExpose({
             <VolumeUpIcon />
           </el-icon>
         </button>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          class="player__volume__slider"
-          v-model="playerState.volume" />
+        <input type="range" min="0" max="1" step="0.1" class="player__volume__slider" v-model="playerState.volume" />
         <div class="player__times__span">
-          <span
-            >{{ playerState.currentTime }} {{ " / " }}
-            {{ playerState.totalTime }}</span
-          >
+          <span>{{ playerState.currentTime }} {{ " / " }}
+            {{ playerState.totalTime }}</span>
         </div>
         <div class="player__control--spacer"></div>
-        <button
-          class="player__button"
-          title="Settings"
-          @click="openSettingMenu">
-          <el-icon
-            :size="24"
-            class="player__setting-icon"
-            :class="
-              playerState.openSetting ? 'player__setting--expanded' : null
-            "
-            aria-expanded="false">
+        <button class="player__button" title="Settings" @click="openSettingMenu">
+          <el-icon :size="24" class="player__setting-icon" :class="playerState.openSetting ? 'player__setting--expanded' : null
+            " aria-expanded="false">
             <SettingIcon />
           </el-icon>
         </button>
-        <button
-          class="player__button"
-          title="Fullscreen"
-          @click="toggleFullScreen">
+        <button class="player__button" title="Fullscreen" @click="toggleFullScreen">
           <el-icon :size="24" v-if="playerState.fullScreen">
             <EnterFullscreenIcon />
           </el-icon>
@@ -500,6 +461,7 @@ defineExpose({
   </div>
 </template>
 
+
 <style scoped>
 .player-wrapper {
   background: black;
@@ -507,10 +469,12 @@ defineExpose({
   padding-bottom: 56.25%;
   height: 0;
 }
+
 .player-wrapper__fullscreen {
   height: 100%;
   padding-bottom: 0 !important;
 }
+
 video {
   position: absolute;
   top: 0;
@@ -533,6 +497,7 @@ video {
   width: 100%;
   z-index: 1;
 }
+
 .player-controls {
   position: absolute;
   bottom: 0;
@@ -545,6 +510,7 @@ video {
   align-items: center;
   background: linear-gradient(rgba(0, 0, 0, 0) 16.67%, rgb(0, 0, 0) 100%);
 }
+
 .player__slider {
   position: absolute;
   left: 1rem;
@@ -552,11 +518,13 @@ video {
   height: 1.5rem;
   top: -1rem;
 }
+
 .player__progress__container {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
+
 .player__progress__holder {
   border-radius: 0.25rem;
   height: 0.25rem;
@@ -569,6 +537,7 @@ video {
   flex: auto;
   transition: all 0.2s;
 }
+
 .player__load__progress {
   border-radius: 0.25rem;
   background-color: #73859fbf;
@@ -577,6 +546,7 @@ video {
   padding: 0;
   height: 100%;
 }
+
 .player__play__progress {
   border-radius: 0.25rem;
   background-color: var(--el-color-primary);
@@ -585,6 +555,7 @@ video {
   padding: 0;
   height: 100%;
 }
+
 .player__play__progress:before {
   border: 0.25rem solid var(--el-color-primary);
   border-radius: 0.5rem;
@@ -599,6 +570,7 @@ video {
   right: -0.5em;
   z-index: 1;
 }
+
 .player-controls .player__button {
   cursor: pointer;
   border: none;
@@ -607,9 +579,11 @@ video {
   color: white;
   outline: none;
 }
+
 .player__control--spacer {
   flex: 1;
 }
+
 .player__volume__slider {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
@@ -621,11 +595,13 @@ video {
   background-color: white;
   outline: none;
 }
+
 .player__volume__slider::-webkit-slider-runnable-track {
   background-color: white;
   border-radius: 0.5rem;
   height: 0.125rem;
 }
+
 .player__volume__slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -635,14 +611,17 @@ video {
   height: 0.5rem;
   width: 0.5rem;
 }
+
 .player__volume__slider:focus::-webkit-slider-thumb {
   background-color: var(--el-color-primary);
 }
+
 .player__volume__slider::-moz-range-track {
   background-color: white;
   border-radius: 0.5rem;
   height: 0.125rem;
 }
+
 .player__volume__slider::-moz-range-thumb {
   background-color: white;
   border: none;
@@ -650,13 +629,16 @@ video {
   height: 0.5rem;
   width: 0.5rem;
 }
+
 .player__volume__slider:focus::-moz-range-thumb {
   background-color: var(--el-color-primary);
 }
+
 .player__times__span {
   font-size: 14px;
   color: white;
 }
+
 .player__big-play-button {
   position: absolute;
   top: 50%;
@@ -665,6 +647,7 @@ video {
   -webkit-transform: translate(-50%, -50%);
   z-index: 2;
 }
+
 .player__big-play-button .player__button {
   cursor: pointer;
   border: none;
@@ -673,12 +656,15 @@ video {
   color: white;
   outline: none;
 }
+
 .player__setting-icon {
   transition: all 0.3s ease-in-out;
 }
+
 .player__setting--expanded {
   transform: rotate(45deg);
 }
+
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
@@ -689,3 +675,4 @@ video {
   opacity: 0;
 }
 </style>
+

@@ -26,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/Video.vue"),
       },
       {
+        name: "Channel",
+        path: "channel/:id",
+        component: () => import("@/pages/Channel.vue"),
+      },
+      {
         name: "Admin",
         path: "admin",
         component: () => import("@/pages/Admin.vue"),

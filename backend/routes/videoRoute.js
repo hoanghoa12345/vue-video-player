@@ -120,7 +120,7 @@ app.get("/video/:videoDir/:videoFile", (req, res) => {
 
   const filePath = path.join(__dirname, "uploads", dir, file);
 
-  fs.readFile(filePath, function (error, content) {
+  fs.readFile(filePath, function(error, content) {
     res.writeHead(200);
     if (error) {
       if (error.code === "ENOENT") {

@@ -1,13 +1,12 @@
 import { ClientPluginContext, useMutation } from "villus";
 import { useStorage } from "@vueuse/core";
-
-let retryCount = 0;
-// let token = localStorage.getItem("access_token") || "";
+import { ref } from 'vue'
 
 export function authPluginWithRefresh({
   opContext,
   afterQuery,
 }: ClientPluginContext) {
+  const isRetry = ref<boolean>(false);
   const tokenState = useStorage("access_token", "");
 
   opContext.headers.Authorization = `Bearer ${tokenState.value}`;
@@ -20,42 +19,35 @@ export function authPluginWithRefresh({
   const { execute } = useMutation(RefreshToken);
 
   afterQuery((result, { response }) => {
-    console.log("response", response);
-    console.log("result", result);
 
     // if no response, then the fetch plugin failed with a fatal error
     if (!response) {
       return;
     }
-    console.log("retry count: ", retryCount);
+    if (result.error && result.error.response.status === 401 && !isRetry.value) {
+      console.log("401 Unauthorized");
+      isRetry.value = true;
 
-    // Update the access token
-    if (
-      response.ok === false &&
-      response.body?.errors[0].message === "jwt expired" &&
-      retryCount < 1
-    ) {
-      console.log("jwt expired");
-      retryCount += 1;
+      // Update the access token
       execute({ token: localStorage.getItem("refresh_token") }).then(
         ({ data, error }: any) => {
-          console.log(error, data);
-          // router.push('/login')
+          if (error) {
+            console.error('Error when refreshing token: ', error);
+          }
         }
       );
     }
-    const { refreshToken }: any = response.body?.data;
+
+    const { refreshToken }: any = result.data;
     if (refreshToken) {
       tokenState.value = refreshToken;
-      localStorage.setItem("access_token", refreshToken);
       opContext.headers.Authorization = `Bearer ${tokenState.value}`;
     }
 
-    const { login }: any = response.body?.data;
+    const { login }: any = result.data;
     if (login) {
       tokenState.value = login?.token;
       opContext.headers.Authorization = `Bearer ${tokenState.value}`;
     }
-    console.log("token");
   });
 }

@@ -7,6 +7,7 @@ import duration from "dayjs/plugin/duration";
 import { Video } from "@/utils/types";
 import EditVideoDialog from '@/components/video-dialogs/EditVideoDialog.vue'
 import CreateVideoDialog from "./CreateVideoDialog.vue";
+import defaultImage from "@/assets/video-placeholder.webp";
 dayjs.extend(duration);
 
 const dialogVisible = ref(false);
@@ -47,7 +48,14 @@ const editVideo = (video: Video) => {
 const closeEditDialog = () => {
   refetch()
 }
+
+const handleError = (event: Event) => {
+  if (event.target instanceof HTMLImageElement) {
+    event.target.src = defaultImage;
+  }
+}
 </script>
+
 
 <template>
   <div class="video-table__container">
@@ -56,7 +64,7 @@ const closeEditDialog = () => {
       <el-row :gutter="20" v-loading="isFetching">
         <el-col v-for="video in data?.videos" :key="video._id" :xl="4" :lg="4" :md="6" :sm="10" :xs="12">
           <el-card class="video-table__card" :body-style="{ padding: '0px' }" shadow="hover">
-            <img :src="video.thumbnail" class="image" />
+            <img :src="video.thumbnail" class="image" @error="handleError" />
             <div style="padding: 14px">
               <span class="video-table__title">{{ video.title }}</span>
               <div class="bottom clearfix">
@@ -94,6 +102,7 @@ const closeEditDialog = () => {
 
 
 
+
 <style scoped>
 .image {
   width: 100%;
@@ -110,6 +119,7 @@ const closeEditDialog = () => {
   float: right;
 }
 </style>
+
 
 
 

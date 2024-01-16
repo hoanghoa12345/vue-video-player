@@ -50,7 +50,7 @@ npm run dev
 ## Configure JWT auth and GraphQL
 
 - Open GraphQL playground: `http://localhost:3000/graphql`
-- JWT expried and refresh token: check code refresh token from backend
+- JWT expired and refresh token: check code refresh token from backend
 - API Testing tool: Postman or Insomnia with GraphQL support.
 
 ## Task list:
@@ -58,6 +58,6 @@ npm run dev
 - Save path video m3u8 and store pinia
 - Save thumbnail and load thumbnail
 - Create form title, description get video duration
-- Choose thumnbnail and save to GraphQL.
+- Choose thumbnail and save to GraphQL.
 - Manage video edit video title and description
 - Filter video by categories

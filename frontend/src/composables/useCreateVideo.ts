@@ -2,7 +2,7 @@ import { CreateVideo } from "@/services/graphql";
 import { ElLoading, ElMessage, FormInstance, FormRules } from "element-plus";
 import { useMutation } from "villus";
 import { reactive, ref } from "vue";
-import Hls from "hls.js";
+// import Hls from "hls.js";
 
 // const UUIDv4Regex =
 //   /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -11,7 +11,7 @@ const ObjectIdRegex = /^[0-9a-fA-F]{24}$/;
 
 export const useCreateVideo = () => {
   const formRef = ref<FormInstance>();
-  const videoRef = ref<HTMLVideoElement>();
+  // const videoRef = ref<HTMLVideoElement>();
   const form = reactive({
     title: "",
     description: "",
@@ -89,7 +89,7 @@ export const useCreateVideo = () => {
       },
       {
         validator: (rule, value, callback) => {
-          if (/^https?:\/\/.+\.(m3u8)$/.test(value) === false) {
+          if (/^https?:\/\/.+\.(m3u8|mp4)$/.test(value) === false) {
             callback(new Error("Please input correct video URL field"));
           } else {
             callback();
@@ -144,40 +144,40 @@ export const useCreateVideo = () => {
     return `${minutes}:${remainingSeconds.toFixed(0)}`;
   };
 
-  const fetchVideoInfo = () => {
-    const loading = ElLoading.service({
-      lock: true,
-      text: "Loading",
-      background: "rgba(0, 0, 0, 0.7)",
-      target:
-        (document.querySelector("#form-create-video") as HTMLElement) ||
-        document.querySelector("body"),
-    });
-    if (videoRef.value) {
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(form.filePath);
-        hls.attachMedia(videoRef.value);
-      } else if (videoRef.value.canPlayType("application/vnd.apple.mpegurl")) {
-        videoRef.value.src = form.filePath;
-      }
-      videoRef.value.addEventListener(
-        "loadedmetadata",
-        function (event: Event) {
-          const videoEl = event.target as HTMLVideoElement;
-          const duration = videoEl.duration;
-          form.duration = secondsToMinutes(duration);
-          form.rawDuration = duration;
-          loading.close();
-        }
-      );
-      // Check videoRef load video is error
-      videoRef.value.addEventListener("error", function (event: Event) {
-        ElMessage.error("Error when load video");
-        loading.close();
+  /*  const fetchVideoInfo = () => {
+      const loading = ElLoading.service({
+        lock: true,
+        text: "Loading",
+        background: "rgba(0, 0, 0, 0.7)",
+        target:
+          (document.querySelector("#form-create-video") as HTMLElement) ||
+          document.querySelector("body"),
       });
-    }
-  };
+      if (videoRef.value) {
+        if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(form.filePath);
+          hls.attachMedia(videoRef.value);
+        } else if (videoRef.value.canPlayType("application/vnd.apple.mpegurl")) {
+          videoRef.value.src = form.filePath;
+        }
+        videoRef.value.addEventListener(
+          "loadedmetadata",
+          function (event: Event) {
+            const videoEl = event.target as HTMLVideoElement;
+            const duration = videoEl.duration;
+            form.duration = secondsToMinutes(duration);
+            form.rawDuration = duration;
+            loading.close();
+          }
+        );
+        // Check videoRef load video is error
+        videoRef.value.addEventListener("error", function (event: Event) {
+          ElMessage.error("Error when load video");
+          loading.close();
+        });
+      }
+    };*/
 
   return {
     form,
@@ -186,7 +186,7 @@ export const useCreateVideo = () => {
     onSubmit,
     handleClose,
     isFetchingForm,
-    videoRef,
-    fetchVideoInfo,
+    // videoRef,
+    // fetchVideoInfo,
   };
 };
