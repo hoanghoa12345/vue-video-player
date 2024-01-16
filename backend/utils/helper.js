@@ -9,11 +9,11 @@ const getToken = (user) =>
     },
     JWT_SECRET,
     {
-      expiresIn: "10m",
+      expiresIn: "1h",
     }
   );
 const getRefreshToken = (id) =>
-  jwt.sign({ userId: id }, JWT_REFRESH_SECRET, { expiresIn: "4h" });
+  jwt.sign({ userId: id }, JWT_REFRESH_SECRET, { expiresIn: "1d" });
 
 const checkRefreshToken = (token) => {
   try {
