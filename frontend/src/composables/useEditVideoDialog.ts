@@ -9,7 +9,7 @@ import {
   UploadProps,
   UploadUserFile,
 } from "element-plus";
-import { Ref, defineAsyncComponent, reactive, ref } from "vue";
+import { reactive, ref, computed } from "vue";
 import { Video, VideoInput } from "@/utils/types";
 import { useMutation } from "villus";
 import { UpdateVideo } from "@/services/graphql";
@@ -27,6 +27,7 @@ export const TAB_EDIT_THUMB = "editVideoThumbnail";
 
 export function useEditVideoDialog() {
   const formRef = ref<FormInstance>();
+  const tabEditRef = ref();
   const videoId = ref<string>();
   const formData = reactive<VideoInput>({
     title: "",
@@ -102,6 +103,12 @@ export function useEditVideoDialog() {
   const changeTab = (name: TabPaneName) => {
     currentTab.value = name;
   };
+  const scrollHeight = computed(() => {
+    if (tabEditRef.value) {
+      return tabEditRef.value.$el.clientHeight - 20 + "px";
+    }
+    return '28rem';
+  })
 
   const getUploadedImage = (
     response: any,
@@ -219,5 +226,7 @@ export function useEditVideoDialog() {
     videoRef,
     Canvas,
     updateThumbnail,
+    scrollHeight,
+    tabEditRef,
   };
 }

@@ -89,13 +89,13 @@ export const useCreateVideo = () => {
       },
       {
         validator: (rule, value, callback) => {
-          if (/^https?:\/\/.+\.(m3u8|mp4)$/.test(value) === false) {
+          if (/^(https?:\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/.test(value) === false) {
             callback(new Error("Please input correct video URL field"));
           } else {
             callback();
           }
         },
-        message: "Video URL must be in m3u8 format",
+        message: "Video URL must be contain link to video",
         trigger: "blur",
       },
     ],
@@ -107,13 +107,13 @@ export const useCreateVideo = () => {
       },
       {
         validator: (rule, value, callback) => {
-          if (/^https?:\/\/.+\.(jpg|jpeg|png|webp)$/.test(value) === false) {
+          if (/^(https?:\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/.test(value) === false) {
             callback(new Error("Please input thumbnail field"));
           } else {
             callback();
           }
         },
-        message: "Please input correct format of the video's",
+        message: "Please input correct thumbnail URL field",
         trigger: "blur",
       },
     ],

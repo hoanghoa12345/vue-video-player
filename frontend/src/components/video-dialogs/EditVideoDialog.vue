@@ -1,29 +1,31 @@
 <template>
   <el-dialog :title="videoData?.title" :model-value="modelValue" @update:modelValue="emit('update:modelValue', false)"
     :draggable="true" width="80%" @close="emit('close')">
-    <el-tabs tab-position="left" type="border-card" class="video-edit__tabs" v-model="currentTab" @tab-change="changeTab">
+    <el-tabs tab-position="left" type="border-card" class="video-edit__tabs" v-model="currentTab" @tab-change="changeTab" ref="tabEditRef">
       <el-tab-pane label="Title" :name="TAB_EDIT_TITLE">
-        <p class="video-table__title">Title</p>
-        <div>
-          <el-form label-position="top" :model="formEditData" label-width="120px" :rules="rulesEdit" ref="formEditRef">
-            <el-form-item label="Title" prop="title">
-              <el-input v-model="formEditData.title" type="text" />
-            </el-form-item>
-            <el-form-item label="Description" prop="description">
-              <el-input v-model="formEditData.description" type="textarea" :autosize="{ minRows: 8, maxRows: 12 }" />
-            </el-form-item>
-            <el-form-item label="Video URL" prop="filePath">
-              <el-input v-model="formEditData.filePath" type="text" />
-            </el-form-item>
-            <el-form-item label="Thumbnail URL" prop="thumbnail">
-              <el-input v-model="formEditData.thumbnail" type="text" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="onSubmitEdit(formEditRef)">Save</el-button>
-              <el-button @click="emit('update:modelValue', false)">Cancel</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
+        <el-scrollbar :height="scrollHeight">
+          <p class="video-table__title">Title</p>
+          <div>
+            <el-form label-position="top" :model="formEditData" label-width="120px" :rules="rulesEdit" ref="formEditRef">
+              <el-form-item label="Title" prop="title">
+                <el-input v-model="formEditData.title" type="text" />
+              </el-form-item>
+              <el-form-item label="Description" prop="description">
+                <el-input v-model="formEditData.description" type="textarea" :autosize="{ minRows: 8, maxRows: 12 }" />
+              </el-form-item>
+              <el-form-item label="Video URL" prop="filePath">
+                <el-input v-model="formEditData.filePath" type="text" />
+              </el-form-item>
+              <el-form-item label="Thumbnail URL" prop="thumbnail">
+                <el-input v-model="formEditData.thumbnail" type="text" />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="onSubmitEdit(formEditRef)">Save</el-button>
+                <el-button @click="emit('update:modelValue', false)">Cancel</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+        </el-scrollbar>
       </el-tab-pane>
       <el-tab-pane label="Video" :name="TAB_EDIT_VIDEO">
         <p class="video-table__title">Video</p>
@@ -41,7 +43,7 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="Thumbnail" :name="TAB_EDIT_THUMB">
-        <el-scrollbar height="36rem">
+        <el-scrollbar :height="scrollHeight">
           <p class="video-table__title">Thumbnail</p>
           <div class="video-edit__thumbnail-preview">
             <div class="video-edit__video-preview">
@@ -132,6 +134,8 @@ const {
   videoRef,
   Canvas,
   updateThumbnail,
+  scrollHeight,
+  tabEditRef,
 } = useEditVideoDialog();
 
 onUpdated(() => {
@@ -151,5 +155,7 @@ onUpdated(() => {
     });
   }
 });
+
 </script>
+
 
