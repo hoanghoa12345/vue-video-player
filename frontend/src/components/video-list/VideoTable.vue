@@ -57,9 +57,10 @@ const handleError = (event: Event) => {
 </script>
 
 
+
 <template>
   <div class="video-table__container">
-    <el-button type="primary" @click="dialogVisible = true">Create</el-button>
+    <el-button type="primary" class="video-table__create-button" @click="dialogVisible = true">Create</el-button>
     <div>
       <el-row :gutter="20" v-loading="isFetching">
         <el-col v-for="video in data?.videos" :key="video._id" :xl="4" :lg="4" :md="6" :sm="10" :xs="12">
@@ -103,6 +104,7 @@ const handleError = (event: Event) => {
 
 
 
+
 <style scoped>
 .image {
   width: 100%;
@@ -119,6 +121,7 @@ const handleError = (event: Event) => {
   float: right;
 }
 </style>
+
 
 
 

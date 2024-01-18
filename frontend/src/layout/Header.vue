@@ -115,6 +115,7 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
 
 
 
+
 <template>
   <el-header class="header">
     <el-menu mode="horizontal" :ellipsis="false" menu-trigger="click" class="container items-center header-logo"
@@ -122,15 +123,15 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
       <el-menu-item index="0">
         <router-link to="/" class="logo__link">
           <div class="flex items-center logo" style="position: relative">
-            <img class="logo__image" width="32" height="32" src="/images/logo.svg" alt="logo" />
-            <img :src="clipParts[0]" style="
+            <img class="logo__image" width="32" height="32" src="/images/logo.webp" alt="logo" />
+            <!--img :src="clipParts[0]" style="
                 width: 16px;
                 height: 16px;
                 rotate: 30deg;
                 position: absolute;
                 right: 67px;
                 top: 15px;
-              " />
+              " /-->
             <p class="logo__text">MyClip</p>
           </div>
         </router-link>
@@ -164,6 +165,7 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
     </el-menu>
   </el-header>
 </template>
+
 
 
 
@@ -262,5 +264,6 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
   display: none;
 }
 </style>
+
 
 

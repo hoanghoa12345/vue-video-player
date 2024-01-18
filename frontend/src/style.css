@@ -97,6 +97,9 @@ body {
 .video-table__container {
   min-height: 20rem;
 }
+.video-table__create-button {
+  margin-bottom: 1rem;
+}
 /* == Video dialog == */
 .video-dialog__radio-group {
   flex-direction: column;
