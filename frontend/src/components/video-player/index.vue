@@ -10,6 +10,7 @@ import {
 } from "vue";
 import Hls from "hls.js";
 import { debounce } from "lodash-es";
+import { useStorage } from "@vueuse/core";
 import {
   PlayIcon,
   PauseIcon,
@@ -19,13 +20,13 @@ import {
   SettingIcon,
   ExitFullscreenIcon,
   EnterFullscreenIcon,
+  LoadingIcon,
 } from "@/components/icons";
-// import { ElLoading } from 'element-plus'
-// import { LoadingInstance } from "element-plus/es/components/loading/src/loading";
 
 type PlayerState = {
   loadStateType: string;
   playerProgress: number;
+  isLoading: boolean;
   currentTime: string;
   totalTime: string;
   fullScreen: boolean;
@@ -54,10 +55,12 @@ const refVideo: Ref<HTMLMediaElement | null> = ref(null);
 const refPlayerWrap = ref<HTMLElement>();
 const refProgress = ref<HTMLElement>();
 let hls: Hls;
-// let loadingVideo: LoadingInstance;
+
+const playerVolume = useStorage("player_volume", 1);
 
 const playerState = reactive<PlayerState>({
   loadStateType: "loadstart",
+  isLoading: false,
   playerProgress: 0,
   currentTime: "00:00",
   totalTime: "00:00",
@@ -65,7 +68,7 @@ const playerState = reactive<PlayerState>({
   playBtnState: props.autoPlay ? "pause" : "play",
   preloadBar: 0,
   muted: false,
-  volume: 1,
+  volume: playerVolume.value,
   isVideoHovering: false,
   isProgressHovering: false,
   isDraggingProgress: false,
@@ -73,9 +76,7 @@ const playerState = reactive<PlayerState>({
 });
 
 const init = () => {
-  if (refVideo.value?.canPlayType("video/mp4")) {
-    refVideo.value.src = props.src;
-  } else if (refVideo.value?.canPlayType("application/vnd.apple.mpegurl")) {
+  if (refVideo.value?.canPlayType("application/vnd.apple.mpegurl") || refVideo.value?.canPlayType("application/x-mpegurl") || props.src.includes("mp4")) {
     refVideo.value.src = props.src;
     const promise = refVideo.value?.play();
     if (promise !== undefined) {
@@ -159,9 +160,7 @@ const onTimeUpdate = (event: Event) => {
 
 const onCanPlay = (event: Event) => {
   playerState.loadStateType = "canPlay"
-  // if(loadingVideo) {
-  //   loadingVideo.close();
-  // }
+  playerState.isLoading = false
   if (playerState.playBtnState !== "play") {
     if (refVideo.value) {
       refVideo.value.play();
@@ -210,12 +209,7 @@ const onProgress = (event: Event) => {
 
 const onLoadStart = (event: Event) => {
   playerState.loadStateType = "loadStart"
-  // loadingVideo = ElLoading.service({
-  //   lock: true,
-  //   text: 'Loading',
-  //   background: 'rgba(0, 0, 0, 0.7)',
-  //   target: refPlayerWrap.value,
-  // })
+  playerState.isLoading = true
 }
 
 const togglePlay = () => {
@@ -269,6 +263,11 @@ const toggleFullScreen = () => {
 const onPlay = () => {
   playerState.playBtnState = "pause";
 };
+
+const onWaiting = (event: Event) => {
+  playerState.loadStateType = "waiting"
+  playerState.isLoading = true
+}
 
 const hideControl = debounce(() => {
   playerState.isVideoHovering = false;
@@ -374,19 +373,27 @@ const showPlayerControl = computed(() => {
   return false;
 });
 
+watch(
+  () => playerState.volume,
+  (val) => {
+    if (playerVolume.value) {
+      playerVolume.value = val;
+    }
+  }
+);
+
 defineExpose({
   refVideo,
 });
 </script>
-
 
 <template>
   <div class="player-wrapper" :class="playerState.fullScreen ? 'player-wrapper__fullscreen' : null" ref="refPlayerWrap"
     @mousemove="mouseMoveWarp" @mouseleave="playerState.isVideoHovering = false">
     <div class="player__video">
       <video ref="refVideo" :muted="playerState.muted" :volume="playerState.volume" @play="onPlay"
-        @timeupdate="onTimeUpdate" @canplay="onCanPlay" @ended="onEnded" @progress="onProgress"
-        @loadstart="onLoadStart" />
+        @timeupdate="onTimeUpdate" @canplay="onCanPlay" @ended="onEnded" @progress="onProgress" @loadstart="onLoadStart"
+        @waiting="onWaiting" />
       <div class="player__poster" @click="togglePlay"></div>
     </div>
     <Transition>
@@ -401,6 +408,12 @@ defineExpose({
         </button>
       </div>
     </Transition>
+
+    <div class="loading__spinner" v-if="playerState.isLoading">
+      <el-icon :size="48" v-if="true">
+        <LoadingIcon />
+      </el-icon>
+    </div>
 
     <Transition>
       <div class="player-controls" v-show="showPlayerControl">
@@ -460,7 +473,6 @@ defineExpose({
     </Transition>
   </div>
 </template>
-
 
 <style scoped>
 .player-wrapper {
@@ -655,6 +667,15 @@ video {
   padding: 0.75rem;
   color: white;
   outline: none;
+}
+
+.loading__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
 .player__setting-icon {

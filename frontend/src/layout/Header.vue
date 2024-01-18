@@ -113,9 +113,6 @@ const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
 const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-512.png", "https://cdn-icons-png.flaticon.com/512/9181/9181358.png"]
 </script>
 
-
-
-
 <template>
   <el-header class="header">
     <el-menu mode="horizontal" :ellipsis="false" menu-trigger="click" class="container items-center header-logo"
@@ -264,6 +261,4 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
   display: none;
 }
 </style>
-
-
 

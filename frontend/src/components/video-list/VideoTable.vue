@@ -56,8 +56,6 @@ const handleError = (event: Event) => {
 }
 </script>
 
-
-
 <template>
   <div class="video-table__container">
     <el-button type="primary" class="video-table__create-button" @click="dialogVisible = true">Create</el-button>
@@ -94,17 +92,6 @@ const handleError = (event: Event) => {
     </div>
   </div>
 </template>
-
-
-
-
-
-
-
-
-
-
-
 <style scoped>
 .image {
   width: 100%;
@@ -121,6 +108,11 @@ const handleError = (event: Event) => {
   float: right;
 }
 </style>
+
+
+
+
+
 
 
 

@@ -2,7 +2,7 @@
 import VideoPlayer from "@/components/video-player/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useQuery, useMutation } from "villus";
-import { onMounted, onUpdated, ref, watch } from "vue";
+import { onMounted, onUpdated, ref, watch, watchEffect } from "vue";
 import {
   GetVideo,
   LikeVideo,
@@ -91,23 +91,34 @@ watch(data, (data) => {
   });
 });
 
+const scrollUp = () => {
+  const scrollEl = document.querySelector<HTMLElement>(".perfect-scrollbar");
+  if (!scrollEl) //throw new Error("Can't scroll to top");
+    return;
+
+  setTimeout(() => {
+    if (scrollEl) {
+      scrollEl.scroll({
+        top: 0,
+        left: 0,
+        behavior: 'auto'
+      });
+    }
+  }, 500);
+
+}
+
 watch(
   () => route.params.id,
   () => {
-    const scrollEl = document.querySelector<HTMLElement>(".perfect-scrollbar");
-    if (!scrollEl) throw new Error("Can't scroll to top");
-
-    setTimeout(() => {
-      if (scrollEl) {
-        scrollEl.scrollTo(0, 0);
-      }
-    }, 500);
+    scrollUp()
   }
 );
+
+watchEffect(() => {
+  scrollUp()
+})
 </script>
-
-
-
 
 <template>
   <el-row :gutter="20">
@@ -204,8 +215,6 @@ watch(
   </el-row>
 </template>
 
-
-
 <style>
 .video-item {
   margin-top: 1rem;
@@ -256,5 +265,17 @@ watch(
   border-radius: 0.25rem;
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
