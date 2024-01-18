@@ -76,54 +76,60 @@ const playerState = reactive<PlayerState>({
 });
 
 const init = () => {
-  if (refVideo.value?.canPlayType("application/vnd.apple.mpegurl") || refVideo.value?.canPlayType("application/x-mpegurl") || props.src.includes("mp4")) {
-    refVideo.value.src = props.src;
-    const promise = refVideo.value?.play();
-    if (promise !== undefined) {
-      promise
-        .then((_) => {
-          // console.log("Autoplay started!");
-        })
-        .catch((error) => {
-          playerState.playBtnState = "play";
-          // console.log("Autoplay was prevented", error);
-        });
-    }
-  } else if (Hls.isSupported()) {
-    hls = new Hls();
+  if (refVideo.value) {
+    if (
+      refVideo.value?.canPlayType("application/vnd.apple.mpegurl") ||
+      refVideo.value?.canPlayType("application/x-mpegurl") ||
+      props.src.includes("mp4")
+    ) {
+      refVideo.value.src = props.src;
+      const promise = refVideo.value?.play();
+      if (promise !== undefined) {
+        promise
+          .then((_) => {
+            // console.log("Autoplay started!");
+          })
+          .catch((error) => {
+            playerState.playBtnState = "play";
+            // console.log("Autoplay was prevented", error);
+          });
+      }
+    } else if (Hls.isSupported()) {
+      hls = new Hls();
 
-    hls.detachMedia();
-    hls.attachMedia(refVideo.value!);
-    hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-      hls.loadSource(props.src);
-      // console.log("on attached");
-      hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
-        console.log(data);
-        // console.log("auto play", props.autoPlay);
+      hls.detachMedia();
+      hls.attachMedia(refVideo.value!);
+      hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+        hls.loadSource(props.src);
+        // console.log("on attached");
+        hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
+          console.log(data);
+          // console.log("auto play", props.autoPlay);
 
-        if (props.autoPlay) {
-          // Auto play video
-          refVideo.value
-            ?.play()
-            .then((_) =>
-              console.log(
-                "%cVue.Player",
-                "color:#caf0f8;padding:4px;background:#0077b6;border-radius:4px",
-                "Autoplay started!"
+          if (props.autoPlay) {
+            // Auto play video
+            refVideo.value
+              ?.play()
+              .then((_) =>
+                console.log(
+                  "%cVue.Player",
+                  "color:#caf0f8;padding:4px;background:#0077b6;border-radius:4px",
+                  "Autoplay started!"
+                )
               )
-            )
-            .catch(() => (playerState.playBtnState = "play"));
-        }
+              .catch(() => (playerState.playBtnState = "play"));
+          }
+        });
+        hls.on(Hls.Events.LEVEL_SWITCHING, (ev, data) => {
+          // console.log(data);
+        });
+        hls.on(Hls.Events.LEVEL_SWITCHED, (ev, data) => {
+          // console.log(data);
+        });
       });
-      hls.on(Hls.Events.LEVEL_SWITCHING, (ev, data) => {
-        // console.log(data);
-      });
-      hls.on(Hls.Events.LEVEL_SWITCHED, (ev, data) => {
-        // console.log(data);
-      });
-    });
+    }
+    playerState.playerProgress = 0;
   }
-  playerState.playerProgress = 0;
 };
 watch(
   () => props.src,
@@ -159,8 +165,8 @@ const onTimeUpdate = (event: Event) => {
 };
 
 const onCanPlay = (event: Event) => {
-  playerState.loadStateType = "canPlay"
-  playerState.isLoading = false
+  playerState.loadStateType = "canPlay";
+  playerState.isLoading = false;
   if (playerState.playBtnState !== "play") {
     if (refVideo.value) {
       refVideo.value.play();
@@ -208,9 +214,9 @@ const onProgress = (event: Event) => {
 };
 
 const onLoadStart = (event: Event) => {
-  playerState.loadStateType = "loadStart"
-  playerState.isLoading = true
-}
+  playerState.loadStateType = "loadStart";
+  playerState.isLoading = true;
+};
 
 const togglePlay = () => {
   if (playerState.playBtnState === "play") {
@@ -265,9 +271,9 @@ const onPlay = () => {
 };
 
 const onWaiting = (event: Event) => {
-  playerState.loadStateType = "waiting"
-  playerState.isLoading = true
-}
+  playerState.loadStateType = "waiting";
+  playerState.isLoading = true;
+};
 
 const hideControl = debounce(() => {
   playerState.isVideoHovering = false;
@@ -696,4 +702,3 @@ video {
   opacity: 0;
 }
 </style>
-
