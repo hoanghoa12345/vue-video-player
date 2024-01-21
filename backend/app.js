@@ -5,7 +5,7 @@ import graphqlSchema from "./graphql/schema/index.js";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import path from "path";
-// import videoRoute from "./routes/videoRoute.js";
+import videoRoute from "./routes/videoRoute.js";
 
 const __dirname = path.resolve(path.dirname(""));
 dotenv.config();
@@ -23,9 +23,12 @@ const optionsStatic = {
   maxAge: "1m",
   redirect: false,
 };
-app.use(
-  express.static(path.join(__dirname, "../frontend/dist"), optionsStatic)
-);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    express.static(path.join(__dirname, "../frontend/dist"), optionsStatic)
+  );
+}
 
 const graphQLServer = createYoga({
   schema: graphqlSchema,
@@ -35,17 +38,18 @@ const graphQLServer = createYoga({
   maskedErrors: {
     isDev: true,
   },
-  graphiql: process.env.NODE_ENV === "development" ? true : false,
+  graphiql: process.env.NODE_ENV === "production" ? false : true,
   logging: false,
 });
 
 app.use("/graphql", graphQLServer);
 
-// app.use("/api/video", videoRoute);
-
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-});
+app.use("/api/videos", videoRoute);
+if (process.env.NODE_ENV === "production") {
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  });
+}
 
 const mongodbUri = process.env.MONGODB_URI;
 

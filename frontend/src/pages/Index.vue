@@ -13,7 +13,7 @@ const { data, isFetching, error, execute } = useQuery({
 });
 
 watchEffect(() => {
-  title.value = "Home | MyClip";
+  title.value = "MyClip - Play your favorite videos";
 })
 </script>
 

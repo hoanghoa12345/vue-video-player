@@ -8,7 +8,6 @@ export default {
 import { UserFilled } from "@element-plus/icons-vue";
 import _ from "lodash-es";
 import { Video } from "@/utils/types";
-import { backendUrl } from "@/services/api";
 import defaultImage from "@/assets/video-placeholder.webp";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";

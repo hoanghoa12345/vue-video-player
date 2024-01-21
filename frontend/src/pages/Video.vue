@@ -93,7 +93,8 @@ watch(data, (data) => {
 
 const scrollUp = () => {
   const scrollEl = document.querySelector<HTMLElement>(".perfect-scrollbar");
-  if (!scrollEl) //throw new Error("Can't scroll to top");
+  if (!scrollEl)
+    //throw new Error("Can't scroll to top");
     return;
 
   setTimeout(() => {
@@ -101,28 +102,34 @@ const scrollUp = () => {
       scrollEl.scroll({
         top: 0,
         left: 0,
-        behavior: 'auto'
+        behavior: "auto",
       });
     }
   }, 500);
-
-}
+};
 
 watch(
   () => route.params.id,
   () => {
-    scrollUp()
+    scrollUp();
   }
 );
 
 watchEffect(() => {
-  scrollUp()
-})
+  scrollUp();
+});
 </script>
 
 <template>
   <el-row :gutter="20">
-    <el-col v-loading="isFetching" :span="16" :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
+    <el-col
+      v-loading="isFetching"
+      :span="16"
+      :xs="24"
+      :sm="24"
+      :md="16"
+      :lg="16"
+      :xl="16">
       <div v-if="data">
         <VideoPlayer :src="data.video.filePath" :auto-play="true" />
         <div>
@@ -134,7 +141,10 @@ watchEffect(() => {
               <span>{{ dayjs(+data.video.createdAt).fromNow() }}</span>
             </div>
             <div class="video-info__reaction">
-              <LikeButton :video-id="data.video._id" :like-count="data.video.likes.length" :is-like="data.video.isLike"
+              <LikeButton
+                :video-id="data.video._id"
+                :like-count="data.video.likes.length"
+                :is-like="data.video.isLike"
                 @like-video="(id: string) => likeVideo({ videoId: id }).then(
                   () =>
                     (data.video.isLike = data.video.isLike ? false : true)
@@ -154,12 +164,28 @@ watchEffect(() => {
               <el-button type="primary" size="large" round>Subscribe</el-button>
             </div>
           </div>
-          <span v-if="!showMore" class="video-description">{{ _.truncate(data.video.description, { length: 200 })
-          }}<span role="button" v-show="data.video.description.length > 200" @click="showMore = true"
-              class="button__view-more">View more</span></span>
-          <span v-else class="video-description">{{ data.video.description
-          }}<span class="button__view-more" role="button" @click="showMore = false">&nbsp; View less</span></span>
-          <Comments :comments="data.video.comments" :video-id="data.video._id" />
+          <span v-if="!showMore" class="video-description"
+            >{{ _.truncate(data.video.description, { length: 200 })
+            }}<span
+              role="button"
+              v-show="data.video.description.length > 200"
+              @click="showMore = true"
+              class="button__view-more"
+              >View more</span
+            ></span
+          >
+          <span v-else class="video-description"
+            >{{ data.video.description
+            }}<span
+              class="button__view-more"
+              role="button"
+              @click="showMore = false"
+              >&nbsp; View less</span
+            ></span
+          >
+          <Comments
+            :comments="data.video.comments"
+            :video-id="data.video._id" />
         </div>
       </div>
 
@@ -173,18 +199,35 @@ watchEffect(() => {
       </el-result>
     </el-col>
     <el-col :span="8" :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-      <div class="video-item" v-for="video in videosRelated?.videosRelated" :key="video._id">
+      <div
+        class="video-item"
+        v-for="video in videosRelated?.videosRelated"
+        :key="video._id">
         <router-link :to="{ name: 'Video', params: { id: video._id } }">
-          <el-image class="video-thumbnail__image" :src="video.thumbnail" :alt="video.title">
+          <el-image
+            class="video-thumbnail__image"
+            :src="video.thumbnail"
+            :alt="video.title">
             <template #placeholder>
-              <img class="video-thumbnail__image" :src="defaultThumbnailVideo" alt="" />
+              <img
+                class="video-thumbnail__image"
+                :src="defaultThumbnailVideo"
+                alt="" />
             </template>
             <template #error>
               <div class="image-slot">
                 <el-icon :size="24">
-                  <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round"
+                  <svg
+                    data-slot="icon"
+                    fill="none"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
                       d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
                   </svg>
                 </el-icon>
@@ -194,13 +237,18 @@ watchEffect(() => {
         </router-link>
         <div class="video-thumbnail__content">
           <span class="video-thumbnail__title">{{ video.title }}</span>
-          <div class="el-link el-link--info video-info video-thumbnail__description">
+          <div
+            class="el-link el-link--info video-info video-thumbnail__description">
             <p>{{ video.uploadedBy.name }}</p>
             <span>{{ video.views }} views</span>
           </div>
         </div>
       </div>
-      <el-skeleton :loading="isLoading" v-for="skeletonItem in 10" :key="skeletonItem" class="video-skeleton__wrapper"
+      <el-skeleton
+        :loading="isLoading"
+        v-for="skeletonItem in 10"
+        :key="skeletonItem"
+        class="video-skeleton__wrapper"
         :animated="true">
         <template #template>
           <el-skeleton-item variant="image" class="video-skeleton__image" />
@@ -248,13 +296,19 @@ watchEffect(() => {
 
 .video-thumbnail__title {
   font-size: 14px;
+  -webkit-line-clamp: 3;
+  overflow-wrap: break-word;
+  line-height: 1.25rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
 }
 
 .video-thumbnail__description {
   font-size: 12px;
 }
 
-.video-thumbnail__description>p {
+.video-thumbnail__description > p {
   margin-block-start: 0.5rem;
   margin-block-end: 0.5rem;
 }
@@ -265,17 +319,3 @@ watchEffect(() => {
   border-radius: 0.25rem;
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-

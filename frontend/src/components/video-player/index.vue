@@ -10,7 +10,7 @@ import {
 } from "vue";
 import Hls from "hls.js";
 import { debounce } from "lodash-es";
-import { useStorage } from "@vueuse/core";
+import { useStorage, onClickOutside } from "@vueuse/core";
 import {
   PlayIcon,
   PauseIcon,
@@ -35,7 +35,6 @@ type PlayerState = {
   muted: boolean;
   volume: number;
   isVideoHovering: boolean;
-  isProgressHovering: boolean;
   isDraggingProgress: boolean;
   openSetting: boolean;
 };
@@ -54,6 +53,7 @@ const props = defineProps({
 const refVideo: Ref<HTMLMediaElement | null> = ref(null);
 const refPlayerWrap = ref<HTMLElement>();
 const refProgress = ref<HTMLElement>();
+const settingMenu = ref<HTMLElement>()
 let hls: Hls;
 
 const playerVolume = useStorage("player_volume", 1);
@@ -70,7 +70,6 @@ const playerState = reactive<PlayerState>({
   muted: false,
   volume: playerVolume.value,
   isVideoHovering: false,
-  isProgressHovering: false,
   isDraggingProgress: false,
   openSetting: false,
 });
@@ -146,6 +145,8 @@ onBeforeUnmount(() => {
     hls.destroy();
   }
 });
+
+onClickOutside(settingMenu, event => playerState.openSetting = false)
 
 const timeFormat = (time: number) => {
   let mm: number | string = ~~(time / 60);
@@ -275,17 +276,19 @@ const onWaiting = (event: Event) => {
   playerState.isLoading = true;
 };
 
-const hideControl = debounce(() => {
+const onError = (event: Event) => {
+  playerState.loadStateType = "error";
+  playerState.isLoading = false;
+};
+
+const hideControl = () => {
   playerState.isVideoHovering = false;
   if (refVideo.value) refVideo.value.style.cursor = "none";
-}, 1500);
+};
 
 const mouseMoveWarp = () => {
   if (refVideo.value) refVideo.value.style.cursor = "auto";
   playerState.isVideoHovering = true;
-  if (!playerState.isProgressHovering) {
-    hideControl();
-  }
 };
 
 const mouseDownHandle = (event: MouseEvent) => {
@@ -380,6 +383,15 @@ const showPlayerControl = computed(() => {
 });
 
 watch(
+  () => playerState.isVideoHovering,
+  () => {
+    setTimeout(() => {
+      hideControl();
+    }, 5000);
+  }
+);
+
+watch(
   () => playerState.volume,
   (val) => {
     if (playerVolume.value) {
@@ -394,16 +406,31 @@ defineExpose({
 </script>
 
 <template>
-  <div class="player-wrapper" :class="playerState.fullScreen ? 'player-wrapper__fullscreen' : null" ref="refPlayerWrap"
-    @mousemove="mouseMoveWarp" @mouseleave="playerState.isVideoHovering = false">
+  <div
+    class="player-wrapper"
+    :class="playerState.fullScreen ? 'player-wrapper__fullscreen' : null"
+    ref="refPlayerWrap"
+    @mousemove="mouseMoveWarp"
+    @mouseleave="hideControl">
     <div class="player__video">
-      <video ref="refVideo" :muted="playerState.muted" :volume="playerState.volume" @play="onPlay"
-        @timeupdate="onTimeUpdate" @canplay="onCanPlay" @ended="onEnded" @progress="onProgress" @loadstart="onLoadStart"
-        @waiting="onWaiting" />
+      <video
+        ref="refVideo"
+        :muted="playerState.muted"
+        :volume="playerState.volume"
+        @play="onPlay"
+        @timeupdate="onTimeUpdate"
+        @canplay="onCanPlay"
+        @ended="onEnded"
+        @progress="onProgress"
+        @loadstart="onLoadStart"
+        @waiting="onWaiting"
+        @error="onError" />
       <div class="player__poster" @click="togglePlay"></div>
     </div>
     <Transition>
-      <div class="player__big-play-button" v-if="playerState.playBtnState === 'play'">
+      <div
+        class="player__big-play-button"
+        v-if="playerState.playBtnState === 'play'">
         <button @click="togglePlay" class="player__button" title="Play">
           <el-icon :size="48" v-if="playerState.playBtnState === 'play'">
             <PlayIcon />
@@ -423,13 +450,23 @@ defineExpose({
 
     <Transition>
       <div class="player-controls" v-show="showPlayerControl">
-        <div ref="refProgress" class="player__slider player__progress__container"
-          @mousemove="playerState.isProgressHovering = true" @touchmove="playerState.isProgressHovering = true"
-          @mousedown.stop="mouseDownHandle" @mouseup.stop="mouseUpHandle" @touchstart="touchStartHandle"
+        <div
+          ref="refProgress"
+          class="player__slider player__progress__container"
+          @mousedown.stop="mouseDownHandle"
+          @mouseup.stop="mouseUpHandle"
+          @touchstart="touchStartHandle"
           @touchend="touchEndHandle">
-          <div class="player__progress__holder" @mousemove="mouseMoveHandle" @touchmove="touchMoveHandle">
-            <div class="player__load__progress" :style="loadProgressStyle"></div>
-            <div class="player__play__progress" :style="playProgressStyle"></div>
+          <div
+            class="player__progress__holder"
+            @mousemove="mouseMoveHandle"
+            @touchmove="touchMoveHandle">
+            <div
+              class="player__load__progress"
+              :style="loadProgressStyle"></div>
+            <div
+              class="player__play__progress"
+              :style="playProgressStyle"></div>
           </div>
         </div>
 
@@ -455,19 +492,46 @@ defineExpose({
             <VolumeUpIcon />
           </el-icon>
         </button>
-        <input type="range" min="0" max="1" step="0.1" class="player__volume__slider" v-model="playerState.volume" />
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          class="player__volume__slider"
+          v-model="playerState.volume" />
         <div class="player__times__span">
-          <span>{{ playerState.currentTime }} {{ " / " }}
-            {{ playerState.totalTime }}</span>
+          <span
+            >{{ playerState.currentTime }} {{ " / " }}
+            {{ playerState.totalTime }}</span
+          >
         </div>
         <div class="player__control--spacer"></div>
-        <button class="player__button" title="Settings" @click="openSettingMenu">
-          <el-icon :size="24" class="player__setting-icon" :class="playerState.openSetting ? 'player__setting--expanded' : null
-            " aria-expanded="false">
-            <SettingIcon />
-          </el-icon>
-        </button>
-        <button class="player__button" title="Fullscreen" @click="toggleFullScreen">
+        <div ref="settingMenu">
+          <button
+            class="player__button"
+            title="Settings"
+            @click="openSettingMenu">
+            <el-icon
+              :size="24"
+              class="player__setting-icon"
+              :class="
+                playerState.openSetting ? 'player__setting--expanded' : null
+              "
+              aria-expanded="false">
+              <SettingIcon />
+            </el-icon>
+          </button>
+          <div v-show="playerState.openSetting" class="player__menu-setting">
+            <button type="button" class="player__menu-button">
+              <span>Quality</span><span>Auto</span>
+            </button>
+          </div>
+        </div>
+
+        <button
+          class="player__button"
+          title="Fullscreen"
+          @click="toggleFullScreen">
           <el-icon :size="24" v-if="playerState.fullScreen">
             <EnterFullscreenIcon />
           </el-icon>
@@ -682,6 +746,33 @@ video {
   transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
   z-index: 2;
+  color: white;
+}
+
+.player__menu-setting {
+  position: absolute;
+  background: var(--el-bg-color-overlay);
+  border-radius: 0.375rem;
+  bottom: 100%;
+  box-shadow: 0 1px 2px #00000026;
+  font-size: 0.9rem;
+  right: -3px;
+  text-align: left;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.player__menu-button {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  font-family: inherit;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  column-gap: .5rem;
+  justify-content: space-between;
 }
 
 .player__setting-icon {
