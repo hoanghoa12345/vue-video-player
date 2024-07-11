@@ -37,7 +37,7 @@ if (isDone) {
 
 const onSubmit = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  formEl.validate((valid) => {
+  formEl.validate((valid: boolean)=> {
     if (valid) {
       console.log("submit!");
       execute({ payload: form }).then(({ data, error }: any) => {
@@ -63,7 +63,7 @@ const onSubmit = (formEl: FormInstance | undefined) => {
     } else {
       // console.log("error submit!");
       ElMessage.error("Oops, please input correct email or password.");
-      return false;
+      // return false;
     }
   });
 };

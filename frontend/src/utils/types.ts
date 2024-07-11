@@ -1,14 +1,18 @@
 export interface Video {
-  _id: string;
+  id: string;
+  _id?: string;
+  slug: string;
   title: string;
   description: string;
-  uploadedBy: User;
+  uploadedBy?: User;
   filePath: string;
   duration: string;
   thumbnail: string;
   createdAt: string;
   privacy?: number;
   views: number;
+  created_at: Date;
+  metadata: Metadata;
 }
 export interface VideoInput {
   title: string;
@@ -37,4 +41,18 @@ export interface Comment {
   user: User;
   createdAt: string;
   replies?: Comment[];
+}
+
+export interface Objects {
+  objects: Video[];
+  total: number;
+}
+
+export interface IObject {
+  object: Video;
+}
+
+export interface Metadata {
+  video_url: string;
+  video_description: string;
 }

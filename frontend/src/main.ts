@@ -8,11 +8,10 @@ import "./style.css";
 import App from "./App.vue";
 import router from "./router";
 import { backendGraphQLURl } from "@/services/api";
-import { authPluginWithRefresh } from "@/services/refreshToken";
 
 const client = createClient({
   url: backendGraphQLURl,
-  use: [authPluginWithRefresh, ...defaultPlugins()],
+  use: defaultPlugins(),
 });
 
 const pinia = createPinia();

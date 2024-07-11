@@ -1,3 +1,6 @@
+import { IObject, Objects } from "@/utils/types";
+import request from "./request";
+
 export const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
 
 export const backendGraphQLURl = `${backendUrl}/graphql`;
@@ -7,3 +10,33 @@ export const uploadThumbnailUrl = `${backendUrl}/api/thumbnail`;
 
 export const getVideoPath = (filePath: any) =>
   `${backendUrl}/video/${filePath}`;
+
+
+const api = {
+  getListVideo: () => {
+    const query = {
+      type: "videos",
+    };
+    const url = '/objects';
+    const params = {
+      pretty: true,
+      query: JSON.stringify(query),
+      limit: 10,
+      depth: 1,
+      props: "id,slug,title,thumbnail,created_at,",
+    }
+    return request.get<Objects>(url, {
+      params
+    })
+  },
+  getVideoById: (id: string) => {
+   const url = '/objects/' + id;
+    const params = {
+      depth: 1,
+      props: "id,slug,title,metadata,thumbnail,created_at,",
+    }
+    return request.get<IObject>(url, {params})
+  }
+}
+
+export default api;
