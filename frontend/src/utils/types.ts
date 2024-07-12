@@ -13,6 +13,7 @@ export interface Video {
   views: number;
   created_at: Date;
   metadata: Metadata;
+  created_by: string;
 }
 export interface VideoInput {
   title: string;

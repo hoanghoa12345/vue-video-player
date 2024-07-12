@@ -44,7 +44,7 @@ const props = defineProps<{ video: Video }>();
       </el-image>
     </router-link>
     <div class="video-bottom-section">
-      <router-link :to="`/channel/${props.video.uploadedBy ?? '-'}`">
+      <router-link :to="`/channel/${props.video.created_by ?? '-'}`">
         <el-avatar :icon="UserFilled" />
       </router-link>
       <div class="video-details">
@@ -56,9 +56,9 @@ const props = defineProps<{ video: Video }>();
         </router-link>
         <router-link
           type="info"
-          :to="`/channel/${props.video.id}`"
+          :to="`/channel/${props.video.created_by}`"
           class="el-link el-link--info video-item__channel-name"
-          ><span>{{ props.video.id }}</span></router-link
+          ><span>{{ props.video.created_by ?? 'Admin' }}</span></router-link
         >
         <div class="video-metadata el-link el-link--info">
           <span>{{ props.video.views ?? 0 }} views</span>

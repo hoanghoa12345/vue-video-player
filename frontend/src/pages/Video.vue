@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import VideoPlayer from "@/components/video-player/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { useQuery, useMutation } from "villus";
+// import { useQuery, useMutation } from "villus";
 import { onMounted, onUpdated, ref, watch, watchEffect } from "vue";
-import {
-  GetVideo,
-  LikeVideo,
-  UpdateViewVideo,
-  VideosRelated,
-} from "@/services/graphql";
+// import {
+//   GetVideo,
+//   LikeVideo,
+//   UpdateViewVideo,
+//   VideosRelated,
+// } from "@/services/graphql";
 // import { backendUrl, getVideoPath } from "@/services/api";
 import defaultThumbnailVideo from "@/assets/video-placeholder.webp";
 import Comments from "@/components/video-comments/Comments.vue";
@@ -21,7 +21,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/en";
 import { useUserStore } from "@/stores/user";
 import api from "@/services/api";
-import { IObject } from "@/utils/types";
+import { IObject, Objects } from "@/utils/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -30,8 +30,6 @@ const showMore = ref<boolean>(false);
 const userStore = useUserStore();
 dayjs.locale("en");
 dayjs.extend(relativeTime);
-
-var player = null;
 
 // const {
 //   data,
@@ -46,41 +44,61 @@ var player = null;
 //   },
 // });
 
-const {
-  data: videosRelated,
-  error: err,
-  isFetching: isLoading,
-} = useQuery({
-  query: VideosRelated,
-  variables: {
-    id: route.params.id,
-  },
-});
+// const {
+//   data: videosRelated,
+//   error: err,
+//   isFetching: isLoading,
+// } = useQuery({
+//   query: VideosRelated,
+//   variables: {
+//     id: route.params.id,
+//   },
+// });
 
-const { data: updateView, execute } = useMutation(UpdateViewVideo);
-const variables = {
-  id: route.params.id,
-};
-const { data: videoLikedId, execute: likeVideo } = useMutation(LikeVideo);
+// const { data: updateView, execute } = useMutation(UpdateViewVideo);
+// const variables = {
+//   id: route.params.id,
+// };
+// const { data: videoLikedId, execute: likeVideo } = useMutation(LikeVideo);
 
 const data = ref<IObject>();
 const loading = ref<boolean>(false);
 const error = ref<boolean>(false);
-const playerRef = ref(null)
+
+const relatedVideos = ref<Objects | null>()
+const relatedLoading = ref<boolean>(false)
+const relatedError = ref<boolean>(false)
+
+const like = ref<boolean>(false);
+
+const fetchVideo = (id: string | string[]) => {
+  loading.value = true
+  api.getVideoById(id.toString()).then((res) => {
+    data.value = res.data
+    loading.value = false
+  }).catch(() => {
+    error.value = true
+    loading.value = false
+  })
+}
+
+const fetchRelatedVideo = (id: string | string[]) => {
+  relatedLoading.value = true
+  api.getRelatedVideos(id.toString()).then((res) => {
+    relatedVideos.value = res.data
+    relatedLoading.value = false
+  }).catch((err) => {
+    relatedError.value = true
+    relatedLoading.value = false
+  })
+}
 
 onMounted(() => {
   // execute(variables);
   // console.log(updateView);
 
-  loading.value = true
-  api.getVideoById(route.params.id.toString()).then((res) => {
-    data.value = res.data
-    loading.value = false
-  }).catch((err) => {
-    error.value = true
-    loading.value = false
-  })
-
+  fetchVideo(route.params.id);
+  fetchRelatedVideo(route.params.id);
 });
 
 
@@ -146,7 +164,18 @@ watchEffect(() => {
 
 <template>
   <el-row :gutter="20">
-    <el-col v-loading="loading" :span="16" :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
+    <el-col :span="16" :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
+      <el-skeleton :loading="loading" class="video-skeleton__player-wrapper"
+        :animated="true">
+        <template #template>
+          <el-skeleton-item variant="image" class="video-skeleton__video" />
+          <div class="video-skeleton__video-description">
+            <el-skeleton-item variant="p" style="width: 100%" />
+            <el-skeleton-item variant="p" style="width: 30%" />
+            <el-skeleton-item variant="p" style="width: 60%" />
+          </div>
+        </template>
+      </el-skeleton>
       <div v-if="data">
         <VideoPlayer :src="data.object.metadata.video_url" :auto-play="true" />
         <div id="video"></div>
@@ -159,11 +188,8 @@ watchEffect(() => {
               <span>{{ dayjs(data.object?.created_at).fromNow() }}</span>
             </div>
             <div class="video-info__reaction">
-              <!-- <LikeButton :video-id="data.object?.id" :like-count="data.video?.likes.length" :is-like="data.video?.isLike"
-                @like-video="(id: string) => likeVideo({ videoId: id }).then(
-                  () =>
-                    (data.video.isLike = data.video?.isLike ? false : true)
-                )" /> -->
+              <LikeButton :video-id="data.object?.id" :like-count="like ? 1 : 0" :is-like="like"
+                @like-video="(id: string) => like = !like" />
             </div>
           </div>
           <el-divider />
@@ -179,13 +205,17 @@ watchEffect(() => {
               <el-button type="primary" size="large" round>Subscribe</el-button>
             </div>
           </div>
-          <span v-if="!showMore" class="video-description"><span
-              v-html="_.truncate(data.object.metadata?.video_description, { length: 200 })" />
+
+          <span v-if="!showMore" class="video-description">
+            <span v-html="_.truncate(data.object.metadata?.video_description, { length: 200 })" />
             <span role="button" v-show="data.object.metadata?.video_description?.length > 200" @click="showMore = true"
-              class="button__view-more">View more</span></span>
-          <span v-else class="video-description">{{ data.object.metadata.video_description
-            }}<span class="button__view-more" role="button" @click="showMore = false">&nbsp; View less</span></span>
-          <!-- <Comments :comments="data.video.comments" :video-id="data.video._id" /> -->
+              class="button__view-more">View more</span>
+          </span>
+          <span v-else class="video-description">
+            <span v-html="data.object.metadata?.video_description" />
+            <span class="button__view-more" role="button" @click="showMore = false">&nbsp; View less</span>
+          </span>
+          <Comments :comments="[]" :video-id="data.object.id" />
         </div>
       </div>
 
@@ -199,7 +229,7 @@ watchEffect(() => {
       </el-result>
     </el-col>
     <el-col :span="8" :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-      <div v-if="videosRelated" class="video-item" v-for="video in videosRelated?.videosRelated" :key="video._id">
+      <div v-if="relatedVideos" class="video-item" v-for="video in relatedVideos?.objects" :key="video.id">
         <router-link :to="{ name: 'Video', params: { id: video.id } }">
           <el-image class="video-thumbnail__image" :src="video.thumbnail" :alt="video.title">
             <template #placeholder>
@@ -221,12 +251,12 @@ watchEffect(() => {
         <div class="video-thumbnail__content">
           <span class="video-thumbnail__title">{{ video.title }}</span>
           <div class="el-link el-link--info video-info video-thumbnail__description">
-            <p>{{ video.uploadedBy.name }}</p>
-            <span>{{ video.views }} views</span>
+            <p>{{ 'Admin' }}</p>
+            <span>{{ 0 }} views</span>
           </div>
         </div>
       </div>
-      <el-skeleton :loading="isLoading" v-for="skeletonItem in 10" :key="skeletonItem" class="video-skeleton__wrapper"
+      <el-skeleton :loading="relatedLoading" v-for="skeletonItem in 10" :key="skeletonItem" class="video-skeleton__wrapper"
         :animated="true">
         <template #template>
           <el-skeleton-item variant="image" class="video-skeleton__image" />

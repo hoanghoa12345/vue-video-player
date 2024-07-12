@@ -11,32 +11,70 @@ export const uploadThumbnailUrl = `${backendUrl}/api/thumbnail`;
 export const getVideoPath = (filePath: any) =>
   `${backendUrl}/video/${filePath}`;
 
-
 const api = {
   getListVideo: () => {
     const query = {
       type: "videos",
     };
-    const url = '/objects';
+    const url = "/objects";
     const params = {
       pretty: true,
       query: JSON.stringify(query),
       limit: 10,
       depth: 1,
-      props: "id,slug,title,thumbnail,created_at,",
-    }
+      props: "id,slug,title,thumbnail,created_at,created_by",
+    };
     return request.get<Objects>(url, {
-      params
-    })
+      params,
+    });
   },
   getVideoById: (id: string) => {
-   const url = '/objects/' + id;
+    const url = "/objects/" + id;
     const params = {
       depth: 1,
       props: "id,slug,title,metadata,thumbnail,created_at,",
-    }
-    return request.get<IObject>(url, {params})
-  }
-}
+    };
+    return request.get<IObject>(url, { params });
+  },
+  getRelatedVideos: (id: string) => {
+    const query = {
+      type: "videos",
+      id: {
+        $ne: id,
+      },
+    };
+    const url = "/objects";
+    const params = {
+      pretty: true,
+      query: JSON.stringify(query),
+      limit: 10,
+      depth: 1,
+      props: "id,slug,title,thumbnail,created_at,created_by",
+    };
+    return request.get<Objects>(url, {
+      params,
+    });
+  },
+  searchVideosByKeyword: (keyword: string) => {
+    const query = {
+      type: "videos",
+      title: {
+        $regex: keyword,
+        $options: "i",
+      },
+    };
+    const url = "/objects";
+    const params = {
+      pretty: true,
+      query: JSON.stringify(query),
+      limit: 10,
+      depth: 1,
+      props: "id,slug,title,thumbnail,created_at,created_by",
+    };
+    return request.get<Objects>(url, {
+      params,
+    });
+  },
+};
 
 export default api;
