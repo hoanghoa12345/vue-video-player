@@ -93,12 +93,15 @@ const fetchRelatedVideo = (id: string | string[]) => {
   })
 }
 
+const fetchPageData = (id: string | string[]) => {
+  fetchVideo(id);
+  fetchRelatedVideo(id);
+}
+
 onMounted(() => {
   // execute(variables);
   // console.log(updateView);
-
-  fetchVideo(route.params.id);
-  fetchRelatedVideo(route.params.id);
+  fetchPageData(route.params.id)
 });
 
 
@@ -152,14 +155,15 @@ const scrollUp = () => {
 
 watch(
   () => route.params.id,
-  () => {
+  (videoId: string | string[]) => {
     scrollUp();
+    fetchPageData(videoId);
   }
 );
 
-watchEffect(() => {
-  scrollUp();
-});
+// watchEffect(() => {
+//   scrollUp();
+// });
 </script>
 
 <template>
