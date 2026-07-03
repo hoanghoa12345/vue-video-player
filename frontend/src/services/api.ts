@@ -77,7 +77,7 @@ const api = {
   },
   getAppSettings: () => {
     const query = {
-      type: "videos",
+      type: "settings",
       slug: "settings"
     };
     const url = "/objects";

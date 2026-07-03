@@ -36,7 +36,7 @@ export const useAppStore = defineStore('main-app', {
   },
    getters: {
     pageConfig: (state) => {
-      return (pageName: string) => state.config.metadata.config.pages[pageName];
+      return (pageName: string) => state.config ? state.config.metadata.config.pages[pageName] : null;
     }
   },
 });

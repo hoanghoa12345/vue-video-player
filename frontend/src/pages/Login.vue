@@ -73,7 +73,7 @@ const onSubmit = (formEl: FormInstance | undefined) => {
 </script>
 <template>
   <section class="login-container"
-    :style="{ backgroundImage: `url(${pageConfig.background_url})` }">
+    :style="{ backgroundImage: `url(${pageConfig?.background_url})` }">
     <div class="login-card">
       <div class="login-card__logo">
         <img class="logo__image" width="48" height="48" src="/images/logo.svg" alt="logo" />
