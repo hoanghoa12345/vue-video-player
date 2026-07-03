@@ -6,14 +6,17 @@ import { useRouter } from "vue-router";
 import { useMutation } from "villus";
 import { ElMessage } from "element-plus";
 import { useUserStore } from "@/stores/user";
+import { useAppStore } from "@/stores/app";
 
 const router = useRouter();
 const formRef = ref<FormInstance>();
 const store = useUserStore();
+const appStore = useAppStore();
 const form = reactive({
   email: "",
   password: "",
 });
+const pageConfig = appStore.pageConfig('login');
 
 const LoginMutation = `
   mutation Login ($payload: LoginPayload) {
@@ -37,7 +40,7 @@ if (isDone) {
 
 const onSubmit = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  formEl.validate((valid: boolean)=> {
+  formEl.validate((valid: boolean) => {
     if (valid) {
       console.log("submit!");
       execute({ payload: form }).then(({ data, error }: any) => {
@@ -69,68 +72,40 @@ const onSubmit = (formEl: FormInstance | undefined) => {
 };
 </script>
 <template>
-  <section class="container login-container">
+  <section class="login-container"
+    :style="{ backgroundImage: `url(${pageConfig.background_url})` }">
     <div class="login-card">
       <div class="login-card__logo">
-         <img
-        class="logo__image"
-        width="48"
-        height="48"
-        src="/images/logo.svg"
-        alt="logo" />
+        <img class="logo__image" width="48" height="48" src="/images/logo.svg" alt="logo" />
         <p class="logo__text">MyClip</p>
       </div>
-     
-      <el-form
-        class="login-form"
-        :model="form"
-        ref="formRef"
-        label-position="top"
-        label-width="120px">
-        <el-form-item
-          prop="email"
-          label="Email"
-          size="large"
-          :rules="[
-            {
-              required: true,
-              message: 'Please input email address',
-              trigger: 'blur',
-            },
-            {
-              type: 'email',
-              message: 'Please input correct email address',
-              trigger: ['blur', 'change'],
-            },
-          ]">
-          <el-input
-            v-model="form.email"
-            placeholder="Please input email"
-            :suffix-icon="User" />
+
+      <el-form class="login-form" :model="form" ref="formRef" label-position="top" label-width="120px">
+        <el-form-item prop="email" label="Email" size="large" :rules="[
+          {
+            required: true,
+            message: 'Please input email address',
+            trigger: 'blur',
+          },
+          {
+            type: 'email',
+            message: 'Please input correct email address',
+            trigger: ['blur', 'change'],
+          },
+        ]">
+          <el-input v-model="form.email" placeholder="Please input email" :suffix-icon="User" />
         </el-form-item>
-        <el-form-item
-          prop="password"
-          label="Password"
-          size="large"
-          :rules="[
-            {
-              required: true,
-              message: 'Please input password',
-              trigger: 'blur',
-            },
-          ]">
-          <el-input
-            v-model="form.password"
-            placeholder="Please input password"
-            show-password />
+        <el-form-item prop="password" label="Password" size="large" :rules="[
+          {
+            required: true,
+            message: 'Please input password',
+            trigger: 'blur',
+          },
+        ]">
+          <el-input v-model="form.password" placeholder="Please input password" show-password />
         </el-form-item>
         <el-form-item class="login-button__group">
-          <el-button
-            type="primary"
-            @click="onSubmit(formRef)"
-            :loading="isFetching"
-            >Login</el-button
-          >
+          <el-button type="primary" @click="onSubmit(formRef)" :loading="isFetching">Login</el-button>
           <el-button @click="router.back()">Cancel</el-button>
         </el-form-item>
       </el-form>
@@ -142,7 +117,11 @@ const onSubmit = (formEl: FormInstance | undefined) => {
   display: grid;
   place-content: center;
   height: 100vh;
+  width: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
+
 .login-card {
   width: 25rem;
   height: 32rem;
@@ -161,6 +140,7 @@ const onSubmit = (formEl: FormInstance | undefined) => {
   grid-column: 2/3;
   grid-row: 1/2;
 }
+
 .login-card .login-form {
   grid-column: 1/4;
   grid-row: 2/4;

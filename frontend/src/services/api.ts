@@ -75,6 +75,22 @@ const api = {
       params,
     });
   },
+  getAppSettings: () => {
+    const query = {
+      type: "videos",
+      slug: "settings"
+    };
+    const url = "/objects";
+    const params = {
+      pretty: true,
+      query: JSON.stringify(query),
+      limit: 1,
+      props: "slug,title,metadata,type",
+    };
+    return request.get<Objects>(url, {
+      params,
+    });
+  }
 };
 
 export default api;

@@ -101,19 +101,13 @@ const fetchPageData = (id: string | string[]) => {
 onMounted(() => {
   // execute(variables);
   // console.log(updateView);
-  fetchPageData(route.params.id)
+  fetchPageData(route.params.id);
 });
 
 
 onUpdated(() => {
   // console.log("On Updated");
   // console.log("[info] Video ID: ", route.params.id);
-  // fetchVideo({
-  //   variables: {
-  //     id: route.params.id,
-  //     userId: userStore.id,
-  //   },
-  // });
 });
 
 watch(data, (data) => {
