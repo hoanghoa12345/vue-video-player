@@ -99,15 +99,7 @@ const fetchPageData = (id: string | string[]) => {
 }
 
 onMounted(() => {
-  // execute(variables);
-  // console.log(updateView);
   fetchPageData(route.params.id);
-});
-
-
-onUpdated(() => {
-  // console.log("On Updated");
-  // console.log("[info] Video ID: ", route.params.id);
 });
 
 watch(data, (data) => {
@@ -132,9 +124,9 @@ watch(data, (data) => {
 
 const scrollUp = () => {
   const scrollEl = document.querySelector<HTMLElement>(".perfect-scrollbar");
-  if (!scrollEl)
-    //throw new Error("Can't scroll to top");
-    return;
+  if (!scrollEl) {
+    throw new Error("Can't scroll to top");
+  }
 
   setTimeout(() => {
     if (scrollEl) {
@@ -154,10 +146,6 @@ watch(
     fetchPageData(videoId);
   }
 );
-
-// watchEffect(() => {
-//   scrollUp();
-// });
 </script>
 
 <template>
@@ -181,7 +169,7 @@ watch(
           <h3 class="video-title">{{ data.object?.title }}</h3>
           <div class="video-info__wrapper">
             <div class="video-info__timestamp">
-              <span>{{ data.object?.views ?? 0 }} views </span>
+              <span>{{ data.object?.metadata.play_times }} views </span>
               <span class="mr-2"> • </span>
               <span>{{ dayjs(data.object?.created_at).fromNow() }}</span>
             </div>
@@ -247,10 +235,12 @@ watch(
           </el-image>
         </router-link>
         <div class="video-thumbnail__content">
-          <span class="video-thumbnail__title">{{ video.title }}</span>
+          <router-link class="video-thumbnail__title" :to="{ name: 'Video', params: { id: video.id } }">
+            <span>{{ video.title }}</span>
+          </router-link>
           <div class="el-link el-link--info video-info video-thumbnail__description">
-            <p>{{ 'Admin' }}</p>
-            <span>{{ 0 }} views</span>
+            <p>{{ video.metadata.channel.name }}</p>
+            <span>{{ video.metadata.play_times }} views</span>
           </div>
         </div>
       </div>
@@ -303,11 +293,18 @@ watch(
 .video-thumbnail__title {
   font-size: 14px;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow-wrap: break-word;
   line-height: 1.25rem;
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+  color: var(--el-text-color-primary);
+  text-decoration: none;
+}
+
+.video-thumbnail__title:hover {
+  color: var(--el-color-primary);
 }
 
 .video-thumbnail__description {

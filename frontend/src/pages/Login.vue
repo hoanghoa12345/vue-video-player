@@ -16,7 +16,7 @@ const form = reactive({
   email: "",
   password: "",
 });
-const pageConfig = appStore.pageConfig('login');
+const pageConfig = appStore.pageConfig("login");
 
 const LoginMutation = `
   mutation Login ($payload: LoginPayload) {
@@ -44,7 +44,6 @@ const onSubmit = (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log("submit!");
       execute({ payload: form }).then(({ data, error }: any) => {
-        // console.log("login response", data, error);
 
         if (!error) {
           const { name, email, roles, image, token, refresh_token } =
@@ -54,26 +53,23 @@ const onSubmit = (formEl: FormInstance | undefined) => {
           localStorage.setItem("access_token", token);
           localStorage.setItem("refresh_token", refresh_token);
 
-          // console.log("Hello " + name);
-
           router.push("/");
         } else {
-          // console.log(error);
-
           ElMessage.error("Oops, Invalid email or password.");
         }
       });
     } else {
-      // console.log("error submit!");
       ElMessage.error("Oops, please input correct email or password.");
-      // return false;
     }
   });
 };
+
+const onLoginWithProvider = () => {
+  // ElMessage.error("Oops, this feature is not supported yet.");
+}
 </script>
 <template>
-  <section class="login-container"
-    :style="{ backgroundImage: `url(${pageConfig?.background_url})` }">
+  <section class="login-container" :style="{ backgroundImage: `url(${pageConfig?.background_url})` }">
     <div class="login-card">
       <div class="login-card__logo">
         <img class="logo__image" width="48" height="48" src="/images/logo.svg" alt="logo" />
@@ -104,10 +100,12 @@ const onSubmit = (formEl: FormInstance | undefined) => {
         ]">
           <el-input v-model="form.password" placeholder="Please input password" show-password />
         </el-form-item>
-        <el-form-item class="login-button__group">
-          <el-button type="primary" @click="onSubmit(formRef)" :loading="isFetching">Login</el-button>
+        <div class="login-button__group">
           <el-button @click="router.back()">Cancel</el-button>
-        </el-form-item>
+          <el-button type="primary" @click="onSubmit(formRef)" :loading="isFetching">Login</el-button>
+        </div>
+        <el-button type="primary" class="login-button__provider" @click="onLoginWithProvider">Login with
+          Provider</el-button>
       </el-form>
     </div>
   </section>
@@ -130,7 +128,7 @@ const onSubmit = (formEl: FormInstance | undefined) => {
   grid-template-rows: repeat(3, 1fr);
   background-color: var(--el-bg-color-overlay);
   border-radius: 8px;
-  box-shadow: var(--el-box-shadow)
+  box-shadow: var(--el-box-shadow);
 }
 
 .login-card__logo {
@@ -151,5 +149,28 @@ const onSubmit = (formEl: FormInstance | undefined) => {
 .login-card .logo__image {
   width: 48px;
   height: 48px;
+}
+
+.login-form .login-button__provider {
+  width: 100%;
+}
+
+.login-form .login-button__group {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.login-button__group .el-button {
+  flex: 1;
+}
+
+@media (max-width: 767px) {
+  .login-card {
+    width: calc(100% - 2rem);
+    height: 25rem;
+    margin: 2rem auto;
+  }
 }
 </style>

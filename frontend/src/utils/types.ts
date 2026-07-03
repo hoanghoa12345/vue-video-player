@@ -44,8 +44,8 @@ export interface Comment {
   replies?: Comment[];
 }
 
-export interface Objects {
-  objects: Video[];
+export interface Objects<T = Video> {
+  objects: T[];
   total: number;
 }
 
@@ -56,4 +56,29 @@ export interface IObject {
 export interface Metadata {
   video_url: string;
   video_description: string;
+  channel: Channel;
+  play_times: number;
+}
+
+export interface Channel {
+  id: string;
+  name: string;
+  description: string;
+  cover_image: string;
+  avatar_image: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface AppSettings {
+  metadata: {
+    config: {
+      pages: {
+        [key: string]: {
+          [key: string]: string;
+        };
+      };
+      backend_url: string;
+    };
+  };
 }

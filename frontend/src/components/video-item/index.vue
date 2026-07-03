@@ -44,8 +44,8 @@ const props = defineProps<{ video: Video }>();
       </el-image>
     </router-link>
     <div class="video-bottom-section">
-      <router-link :to="`/channel/${props.video.created_by ?? '-'}`">
-        <el-avatar :icon="UserFilled" />
+      <router-link :to="`/channel/${props.video.metadata.channel.id ?? '-'}`">        
+        <el-avatar :icon="UserFilled" :src="props.video.metadata.channel.avatar_image" />
       </router-link>
       <div class="video-details">
         <router-link
@@ -56,12 +56,12 @@ const props = defineProps<{ video: Video }>();
         </router-link>
         <router-link
           type="info"
-          :to="`/channel/${props.video.created_by}`"
+          :to="`/channel/${props.video.metadata.channel.id}`"
           class="el-link el-link--info video-item__channel-name"
-          ><span>{{ props.video.created_by ?? 'Admin' }}</span></router-link
+          ><span>{{ props.video.metadata.channel.name}}</span></router-link
         >
         <div class="video-metadata el-link el-link--info">
-          <span>{{ props.video.views ?? 0 }} views</span>
+          <span>{{ props.video.metadata.play_times }} views</span>
           &nbsp; • &nbsp;
           <span>{{ dayjs(props.video.created_at).fromNow() }}</span>
         </div>
@@ -104,6 +104,7 @@ img.placeholder {
   -webkit-box-orient: vertical;
   overflow: hidden;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   height: 2.6rem;
   text-overflow: ellipsis;
   color: var(--el-text-color-primary);

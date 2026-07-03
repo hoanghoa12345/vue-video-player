@@ -1,4 +1,4 @@
-import { IObject, Objects } from "@/utils/types";
+import { AppSettings, IObject, Objects } from "@/utils/types";
 import request from "./request";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
@@ -22,7 +22,8 @@ const api = {
       query: JSON.stringify(query),
       limit: 10,
       depth: 1,
-      props: "id,slug,title,thumbnail,created_at,created_by",
+      props:
+        "id,slug,title,thumbnail,metadata.channel,metadata.play_times,created_at",
     };
     return request.get<Objects>(url, {
       params,
@@ -49,7 +50,8 @@ const api = {
       query: JSON.stringify(query),
       limit: 10,
       depth: 1,
-      props: "id,slug,title,thumbnail,created_at,created_by",
+      props:
+        "id,slug,title,thumbnail,metadata.channel,metadata.play_times,created_at",
     };
     return request.get<Objects>(url, {
       params,
@@ -78,7 +80,7 @@ const api = {
   getAppSettings: () => {
     const query = {
       type: "settings",
-      slug: "settings"
+      slug: "settings",
     };
     const url = "/objects";
     const params = {
@@ -87,10 +89,10 @@ const api = {
       limit: 1,
       props: "slug,title,metadata,type",
     };
-    return request.get<Objects>(url, {
+    return request.get<Objects<AppSettings>>(url, {
       params,
     });
-  }
+  },
 };
 
 export default api;
