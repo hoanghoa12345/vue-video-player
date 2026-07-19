@@ -101,7 +101,7 @@ const onLoginWithProvider = () => {
           <el-input v-model="form.password" placeholder="Please input password" show-password />
         </el-form-item>
         <div class="login-button__group">
-          <el-button @click="router.back()">Cancel</el-button>
+          <el-button @click="router.back()">Go Back</el-button>
           <el-button type="primary" @click="onSubmit(formRef)" :loading="isFetching">Login</el-button>
         </div>
         <el-button type="primary" class="login-button__provider" @click="onLoginWithProvider">Login with

@@ -1,5 +1,4 @@
 import api from "@/services/api";
-import { backendUrl } from "@/services/request";
 import { AppSettings } from "@/utils/types";
 import { defineStore } from "pinia";
 
@@ -8,6 +7,7 @@ export const useAppStore = defineStore("main-app", {
     appTheme: "light",
     version: "1.0.0",
     config: null as AppSettings | null,
+    initialize: false,
   }),
   actions: {
     toggleColorMode() {
@@ -33,8 +33,10 @@ export const useAppStore = defineStore("main-app", {
         .getAppSettings()
         .then((res) => {
           this.config = res.data.objects[0];
+          this.initialize = true;
         })
         .catch((err) => {
+          this.initialize = false;
           console.error(err);
         });
     },

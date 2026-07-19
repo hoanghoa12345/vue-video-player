@@ -65,38 +65,44 @@ const data = ref<IObject>();
 const loading = ref<boolean>(false);
 const error = ref<boolean>(false);
 
-const relatedVideos = ref<Objects | null>()
-const relatedLoading = ref<boolean>(false)
-const relatedError = ref<boolean>(false)
+const relatedVideos = ref<Objects | null>();
+const relatedLoading = ref<boolean>(false);
+const relatedError = ref<boolean>(false);
 
 const like = ref<boolean>(false);
 
 const fetchVideo = (id: string | string[]) => {
-  loading.value = true
-  api.getVideoById(id.toString()).then((res) => {
-    data.value = res.data
-    loading.value = false
-  }).catch(() => {
-    error.value = true
-    loading.value = false
-  })
-}
+  loading.value = true;
+  api
+    .getVideoById(id.toString())
+    .then((res) => {
+      data.value = res.data;
+      loading.value = false;
+    })
+    .catch(() => {
+      error.value = true;
+      loading.value = false;
+    });
+};
 
 const fetchRelatedVideo = (id: string | string[]) => {
-  relatedLoading.value = true
-  api.getRelatedVideos(id.toString()).then((res) => {
-    relatedVideos.value = res.data
-    relatedLoading.value = false
-  }).catch((err) => {
-    relatedError.value = true
-    relatedLoading.value = false
-  })
-}
+  relatedLoading.value = true;
+  api
+    .getRelatedVideos(id.toString())
+    .then((res) => {
+      relatedVideos.value = res.data;
+      relatedLoading.value = false;
+    })
+    .catch((err) => {
+      relatedError.value = true;
+      relatedLoading.value = false;
+    });
+};
 
 const fetchPageData = (id: string | string[]) => {
   fetchVideo(id);
   fetchRelatedVideo(id);
-}
+};
 
 onMounted(() => {
   fetchPageData(route.params.id);
@@ -119,7 +125,6 @@ watch(data, (data) => {
       ],
     });
   }
-
 });
 
 const scrollUp = () => {
@@ -142,8 +147,10 @@ const scrollUp = () => {
 watch(
   () => route.params.id,
   (videoId: string | string[]) => {
-    scrollUp();
-    fetchPageData(videoId);
+    if (videoId) {
+      scrollUp();
+      fetchPageData(videoId);
+    }
   }
 );
 </script>
@@ -151,7 +158,9 @@ watch(
 <template>
   <el-row :gutter="20">
     <el-col :span="16" :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
-      <el-skeleton :loading="loading" class="video-skeleton__player-wrapper"
+      <el-skeleton
+        :loading="loading"
+        class="video-skeleton__player-wrapper"
         :animated="true">
         <template #template>
           <el-skeleton-item variant="image" class="video-skeleton__video" />
@@ -174,17 +183,22 @@ watch(
               <span>{{ dayjs(data.object?.created_at).fromNow() }}</span>
             </div>
             <div class="video-info__reaction">
-              <LikeButton :video-id="data.object?.id" :like-count="like ? 1 : 0" :is-like="like"
+              <LikeButton
+                :video-id="data.object?.id"
+                :like-count="like ? 1 : 0"
+                :is-like="like"
                 @like-video="(id: string) => like = !like" />
             </div>
           </div>
           <el-divider />
           <div class="video__user-upload">
             <el-avatar>{{
-              getUsernameInitial(data.object?.uploadedBy?.name ?? 'A')
+              getUsernameInitial(data.object?.uploadedBy?.name ?? "A")
             }}</el-avatar>
             <div>
-              <p class="video__user-name">{{ data.object?.uploadedBy?.name ?? 'Admin' }}</p>
+              <p class="video__user-name">
+                {{ data.object?.uploadedBy?.name ?? "Admin" }}
+              </p>
               <p class="video__subscribe-number">0 subscriber</p>
             </div>
             <div class="video__user-subscribe">
@@ -193,13 +207,28 @@ watch(
           </div>
 
           <span v-if="!showMore" class="video-description">
-            <span v-html="_.truncate(data.object.metadata?.video_description, { length: 200 })" />
-            <span role="button" v-show="data.object.metadata?.video_description?.length > 200" @click="showMore = true"
-              class="button__view-more">View more</span>
+            <span
+              v-html="
+                _.truncate(data.object.metadata?.video_description, {
+                  length: 200,
+                })
+              " />
+            <span
+              role="button"
+              v-show="data.object.metadata?.video_description?.length > 200"
+              @click="showMore = true"
+              class="button__view-more"
+              >View more</span
+            >
           </span>
           <span v-else class="video-description">
             <span v-html="data.object.metadata?.video_description" />
-            <span class="button__view-more" role="button" @click="showMore = false">&nbsp; View less</span>
+            <span
+              class="button__view-more"
+              role="button"
+              @click="showMore = false"
+              >&nbsp; View less</span
+            >
           </span>
           <Comments :comments="[]" :video-id="data.object.id" />
         </div>
@@ -215,18 +244,36 @@ watch(
       </el-result>
     </el-col>
     <el-col :span="8" :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-      <div v-if="relatedVideos" class="video-item" v-for="video in relatedVideos?.objects" :key="video.id">
+      <div
+        v-if="relatedVideos"
+        class="video-item"
+        v-for="video in relatedVideos?.objects"
+        :key="video.id">
         <router-link :to="{ name: 'Video', params: { id: video.id } }">
-          <el-image class="video-thumbnail__image" :src="video.thumbnail" :alt="video.title">
+          <el-image
+            class="video-thumbnail__image"
+            :src="video.thumbnail"
+            :alt="video.title">
             <template #placeholder>
-              <img class="video-thumbnail__image" :src="defaultThumbnailVideo" alt="" />
+              <img
+                class="video-thumbnail__image"
+                :src="defaultThumbnailVideo"
+                alt="" />
             </template>
             <template #error>
               <div class="image-slot">
                 <el-icon :size="24">
-                  <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round"
+                  <svg
+                    data-slot="icon"
+                    fill="none"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
                       d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
                   </svg>
                 </el-icon>
@@ -235,16 +282,23 @@ watch(
           </el-image>
         </router-link>
         <div class="video-thumbnail__content">
-          <router-link class="video-thumbnail__title" :to="{ name: 'Video', params: { id: video.id } }">
+          <router-link
+            class="video-thumbnail__title"
+            :to="{ name: 'Video', params: { id: video.id } }">
             <span>{{ video.title }}</span>
           </router-link>
-          <div class="el-link el-link--info video-info video-thumbnail__description">
+          <div
+            class="el-link el-link--info video-info video-thumbnail__description">
             <p>{{ video.metadata.channel.name }}</p>
             <span>{{ video.metadata.play_times }} views</span>
           </div>
         </div>
       </div>
-      <el-skeleton :loading="relatedLoading" v-for="skeletonItem in 10" :key="skeletonItem" class="video-skeleton__wrapper"
+      <el-skeleton
+        :loading="relatedLoading"
+        v-for="skeletonItem in 10"
+        :key="skeletonItem"
+        class="video-skeleton__wrapper"
         :animated="true">
         <template #template>
           <el-skeleton-item variant="image" class="video-skeleton__image" />
@@ -311,7 +365,7 @@ watch(
   font-size: 12px;
 }
 
-.video-thumbnail__description>p {
+.video-thumbnail__description > p {
   margin-block-start: 0.5rem;
   margin-block-end: 0.5rem;
 }
