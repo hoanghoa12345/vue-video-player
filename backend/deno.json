@@ -1,0 +1,16 @@
+{
+  "imports": {
+    "@libsql/client": "npm:@libsql/client@^0.17.4",
+    "drizzle-kit": "npm:drizzle-kit@^0.31.10",
+    "drizzle-orm": "npm:drizzle-orm@^0.45.2",
+    "hono": "jsr:@hono/hono@^4.12.12"
+  },
+  "tasks": {
+    "start": "deno run --allow-read --allow-env --allow-net src/index.ts",
+    "dev": "deno run --env=.env --allow-read --allow-env --allow-net --allow-ffi --watch src/index.ts"
+  },
+  "compilerOptions": {
+    "jsx": "precompile",
+    "jsxImportSource": "hono/jsx"
+  }
+}

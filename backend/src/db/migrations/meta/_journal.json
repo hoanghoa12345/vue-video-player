@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784970972768,
+      "tag": "0000_broad_mandrill",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784971500291,
+      "tag": "0001_opposite_whizzer",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784971615964,
+      "tag": "0002_massive_mach_iv",
+      "breakpoints": true
+    }
+  ]
+}
