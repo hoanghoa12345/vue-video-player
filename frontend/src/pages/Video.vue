@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import VideoPlayer from "@/components/video-player/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { useQuery, useMutation } from "villus";
+// import { useQuery, useMutation } from "villus";
 import { onMounted, onUpdated, ref, watch, watchEffect } from "vue";
-import {
-  GetVideo,
-  LikeVideo,
-  UpdateViewVideo,
-  VideosRelated,
-} from "@/services/graphql";
-import { backendUrl, getVideoPath } from "@/services/api";
+// import {
+//   GetVideo,
+//   LikeVideo,
+//   UpdateViewVideo,
+//   VideosRelated,
+// } from "@/services/graphql";
+// import { backendUrl, getVideoPath } from "@/services/api";
 import defaultThumbnailVideo from "@/assets/video-placeholder.webp";
 import Comments from "@/components/video-comments/Comments.vue";
 import LikeButton from "@/components/video-actions/LikeButton.vue";
@@ -20,6 +20,8 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/en";
 import { useUserStore } from "@/stores/user";
+import api from "@/services/api";
+import { IObject, Objects } from "@/utils/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -29,73 +31,107 @@ const userStore = useUserStore();
 dayjs.locale("en");
 dayjs.extend(relativeTime);
 
-const {
-  data,
-  error,
-  isFetching,
-  execute: fetchVideo,
-} = useQuery({
-  query: GetVideo,
-  variables: {
-    id: route.params.id,
-    userId: userStore.id,
-  },
-});
+// const {
+//   data,
+//   error,
+//   isFetching,
+//   execute: fetchVideo,
+// } = useQuery({
+//   query: GetVideo,
+//   variables: {
+//     id: route.params.id,
+//     userId: userStore.id,
+//   },
+// });
 
-const {
-  data: videosRelated,
-  error: err,
-  isFetching: isLoading,
-} = useQuery({
-  query: VideosRelated,
-  variables: {
-    id: route.params.id,
-  },
-});
+// const {
+//   data: videosRelated,
+//   error: err,
+//   isFetching: isLoading,
+// } = useQuery({
+//   query: VideosRelated,
+//   variables: {
+//     id: route.params.id,
+//   },
+// });
 
-const { data: updateView, execute } = useMutation(UpdateViewVideo);
-const variables = {
-  id: route.params.id,
+// const { data: updateView, execute } = useMutation(UpdateViewVideo);
+// const variables = {
+//   id: route.params.id,
+// };
+// const { data: videoLikedId, execute: likeVideo } = useMutation(LikeVideo);
+
+const data = ref<IObject>();
+const loading = ref<boolean>(false);
+const error = ref<boolean>(false);
+
+const relatedVideos = ref<Objects | null>();
+const relatedLoading = ref<boolean>(false);
+const relatedError = ref<boolean>(false);
+
+const like = ref<boolean>(false);
+
+const fetchVideo = (id: string | string[]) => {
+  loading.value = true;
+  api
+    .getVideoById(id.toString())
+    .then((res) => {
+      data.value = res.data;
+      loading.value = false;
+    })
+    .catch(() => {
+      error.value = true;
+      loading.value = false;
+    });
 };
-const { data: videoLikedId, execute: likeVideo } = useMutation(LikeVideo);
+
+const fetchRelatedVideo = (id: string | string[]) => {
+  relatedLoading.value = true;
+  api
+    .getRelatedVideos(id.toString())
+    .then((res) => {
+      relatedVideos.value = res.data;
+      relatedLoading.value = false;
+    })
+    .catch((err) => {
+      relatedError.value = true;
+      relatedLoading.value = false;
+    });
+};
+
+const fetchPageData = (id: string | string[]) => {
+  fetchVideo(id);
+  fetchRelatedVideo(id);
+};
 
 onMounted(() => {
-  execute(variables);
-  // console.log(updateView);
-});
-
-onUpdated(() => {
-  // console.log("On Updated");
-  // console.log("[info] Video ID: ", route.params.id);
-  fetchVideo({
-    variables: {
-      id: route.params.id,
-      userId: userStore.id,
-    },
-  });
+  fetchPageData(route.params.id);
 });
 
 watch(data, (data) => {
-  title.value = `${data.video.title} | MyClip`;
-  navigator.mediaSession.metadata = new MediaMetadata({
-    title: data.video.title,
-    artist: data.video.uploadedBy.name,
-    album: data.video.title,
-    artwork: [
-      {
-        src: `${data.video.thumbnail}`,
-        sizes: "640x360",
-        type: "image/png",
-      },
-    ],
-  });
+  const video = data?.object;
+  if (video) {
+    title.value = `${video?.title} | MyClip`;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: video.title,
+      artist: video?.uploadedBy?.name,
+      album: video.title,
+      artwork: [
+        {
+          src: `${video.thumbnail}`,
+          sizes: "640x360",
+          type: "image/png",
+        },
+      ],
+    });
+  }
 });
 
 const scrollUp = () => {
   const scrollEl = document.querySelector<HTMLElement>(".perfect-scrollbar");
-  if (!scrollEl)
-    //throw new Error("Can't scroll to top");
-    return;
+  if (!scrollEl) {
+    throw new Error("Can't scroll to top");
+  }
 
   setTimeout(() => {
     if (scrollEl) {
@@ -110,82 +146,91 @@ const scrollUp = () => {
 
 watch(
   () => route.params.id,
-  () => {
-    scrollUp();
+  (videoId: string | string[]) => {
+    if (videoId) {
+      scrollUp();
+      fetchPageData(videoId);
+    }
   }
 );
-
-watchEffect(() => {
-  scrollUp();
-});
 </script>
 
 <template>
   <el-row :gutter="20">
-    <el-col
-      v-loading="isFetching"
-      :span="16"
-      :xs="24"
-      :sm="24"
-      :md="16"
-      :lg="16"
-      :xl="16">
+    <el-col :span="16" :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
+      <el-skeleton
+        :loading="loading"
+        class="video-skeleton__player-wrapper"
+        :animated="true">
+        <template #template>
+          <el-skeleton-item variant="image" class="video-skeleton__video" />
+          <div class="video-skeleton__video-description">
+            <el-skeleton-item variant="p" style="width: 100%" />
+            <el-skeleton-item variant="p" style="width: 30%" />
+            <el-skeleton-item variant="p" style="width: 60%" />
+          </div>
+        </template>
+      </el-skeleton>
       <div v-if="data">
-        <VideoPlayer :src="data.video.filePath" :auto-play="true" />
+        <VideoPlayer :src="data.object.metadata.video_url" :auto-play="true" />
+        <div id="video"></div>
         <div>
-          <h3 class="video-title">{{ data.video.title }}</h3>
+          <h3 class="video-title">{{ data.object?.title }}</h3>
           <div class="video-info__wrapper">
             <div class="video-info__timestamp">
-              <span>{{ data.video.views }} views </span>
+              <span>{{ data.object?.metadata.play_times }} views </span>
               <span class="mr-2"> • </span>
-              <span>{{ dayjs(+data.video.createdAt).fromNow() }}</span>
+              <span>{{ dayjs(data.object?.created_at).fromNow() }}</span>
             </div>
             <div class="video-info__reaction">
               <LikeButton
-                :video-id="data.video._id"
-                :like-count="data.video.likes.length"
-                :is-like="data.video.isLike"
-                @like-video="(id: string) => likeVideo({ videoId: id }).then(
-                  () =>
-                    (data.video.isLike = data.video.isLike ? false : true)
-                )" />
+                :video-id="data.object?.id"
+                :like-count="like ? 1 : 0"
+                :is-like="like"
+                @like-video="(id: string) => like = !like" />
             </div>
           </div>
           <el-divider />
           <div class="video__user-upload">
             <el-avatar>{{
-              getUsernameInitial(data.video.uploadedBy.name)
+              getUsernameInitial(data.object?.uploadedBy?.name ?? "A")
             }}</el-avatar>
             <div>
-              <p class="video__user-name">{{ data.video.uploadedBy.name }}</p>
+              <p class="video__user-name">
+                {{ data.object?.uploadedBy?.name ?? "Admin" }}
+              </p>
               <p class="video__subscribe-number">0 subscriber</p>
             </div>
             <div class="video__user-subscribe">
               <el-button type="primary" size="large" round>Subscribe</el-button>
             </div>
           </div>
-          <span v-if="!showMore" class="video-description"
-            >{{ _.truncate(data.video.description, { length: 200 })
-            }}<span
+
+          <span v-if="!showMore" class="video-description">
+            <span
+              v-html="
+                _.truncate(data.object.metadata?.video_description, {
+                  length: 200,
+                })
+              " />
+            <span
               role="button"
-              v-show="data.video.description.length > 200"
+              v-show="data.object.metadata?.video_description?.length > 200"
               @click="showMore = true"
               class="button__view-more"
               >View more</span
-            ></span
-          >
-          <span v-else class="video-description"
-            >{{ data.video.description
-            }}<span
+            >
+          </span>
+          <span v-else class="video-description">
+            <span v-html="data.object.metadata?.video_description" />
+            <span
               class="button__view-more"
               role="button"
               @click="showMore = false"
               >&nbsp; View less</span
-            ></span
-          >
-          <Comments
-            :comments="data.video.comments"
-            :video-id="data.video._id" />
+            >
+          </span>
+          <Comments :comments="[]" :video-id="data.object.id" />
         </div>
       </div>
 
@@ -200,10 +245,11 @@ watchEffect(() => {
     </el-col>
     <el-col :span="8" :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
       <div
+        v-if="relatedVideos"
         class="video-item"
-        v-for="video in videosRelated?.videosRelated"
-        :key="video._id">
-        <router-link :to="{ name: 'Video', params: { id: video._id } }">
+        v-for="video in relatedVideos?.objects"
+        :key="video.id">
+        <router-link :to="{ name: 'Video', params: { id: video.id } }">
           <el-image
             class="video-thumbnail__image"
             :src="video.thumbnail"
@@ -236,16 +282,20 @@ watchEffect(() => {
           </el-image>
         </router-link>
         <div class="video-thumbnail__content">
-          <span class="video-thumbnail__title">{{ video.title }}</span>
+          <router-link
+            class="video-thumbnail__title"
+            :to="{ name: 'Video', params: { id: video.id } }">
+            <span>{{ video.title }}</span>
+          </router-link>
           <div
             class="el-link el-link--info video-info video-thumbnail__description">
-            <p>{{ video.uploadedBy.name }}</p>
-            <span>{{ video.views }} views</span>
+            <p>{{ video.metadata.channel.name }}</p>
+            <span>{{ video.metadata.play_times }} views</span>
           </div>
         </div>
       </div>
       <el-skeleton
-        :loading="isLoading"
+        :loading="relatedLoading"
         v-for="skeletonItem in 10"
         :key="skeletonItem"
         class="video-skeleton__wrapper"
@@ -297,11 +347,18 @@ watchEffect(() => {
 .video-thumbnail__title {
   font-size: 14px;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow-wrap: break-word;
   line-height: 1.25rem;
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+  color: var(--el-text-color-primary);
+  text-decoration: none;
+}
+
+.video-thumbnail__title:hover {
+  color: var(--el-color-primary);
 }
 
 .video-thumbnail__description {

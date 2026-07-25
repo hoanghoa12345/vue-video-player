@@ -76,7 +76,7 @@ const playerState = reactive<PlayerState>({
 
 const init = () => {
   if (refVideo.value) {
-    if (
+    /*if (
       refVideo.value?.canPlayType("application/vnd.apple.mpegurl") ||
       refVideo.value?.canPlayType("application/x-mpegurl") ||
       props.src.includes("mp4")
@@ -93,7 +93,8 @@ const init = () => {
             // console.log("Autoplay was prevented", error);
           });
       }
-    } else if (Hls.isSupported()) {
+    } else*/
+    if (Hls.isSupported()) {
       hls = new Hls();
 
       hls.detachMedia();
@@ -244,24 +245,24 @@ const toggleFullScreen = () => {
     if (el.webkitSupportsFullscreen) {
       el.webkitEnterFullscreen().then(() => {
         playerState.fullScreen = true;
-        screen.orientation
-          .lock("landscape")
-          .catch((error) => console.log(error));
+        // screen.orientation
+        //   .lock("landscape")
+        //   .catch((error) => console.log(error));
       });
     }
     if (el.mozRequestFullScreen) {
       el.mozRequestFullScreen().then(() => {
         playerState.fullScreen = true;
-        screen.orientation
-          .lock("landscape")
-          .catch((error) => console.log(error));
+        // screen.orientation
+        //   .lock("landscape")
+        //   .catch((error) => console.log(error));
       });
     } else {
       el.requestFullscreen().then(() => {
         playerState.fullScreen = true;
-        screen.orientation
-          .lock("landscape")
-          .catch((error) => console.log(error));
+        // screen.orientation
+        //   .lock("landscape")
+        //   .catch((error) => console.log(error));
       });
     }
   }

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Search, Upload, MoreFilled } from "@element-plus/icons-vue";
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import { useMutation, useQuery } from "villus";
 import { useRouter } from "vue-router";
 import type { AutocompleteInstance } from "element-plus";
 import { useDark, useToggle } from "@vueuse/core";
 import { useUserStore } from "@/stores/user";
 import { useAppStore } from "@/stores/app";
+import api from "@/services/api";
 
 const router = useRouter();
 const state = ref("");
@@ -21,49 +22,27 @@ interface LinkItem {
   link: string;
 }
 
-const links = ref<LinkItem[]>([]);
+const fetchInitialResults = () => {
+  // TODO
+}
 
-const AllVideos = `
-  query AllVideos {
-    videos {
-      _id
-      title
+const querySearchAsync = (queryString: string, cb: (arg: LinkItem[]) => void) => {
+  if (queryString.length < 3) return;
+  api.searchVideosByKeyword(queryString).then((res) => {
+    if (res.data?.total > 0) {
+      const results = res.data.objects.map((item) => ({ value: item.title, link: item.id }))
+      cb(results);
     }
-  }
-`;
+  }).catch(() => {
+    cb([{ value: 'Not found', link: '' }]);
+  })
 
-const { data } = useQuery({
-  query: AllVideos,
-});
-
-const querySearchAsync = (queryString: string, cb: (arg: any) => void) => {
-  // console.log(queryString);
-  const results = queryString
-    ? links.value.filter(createFilter(queryString))
-    : links.value;
-
-  cb(results);
 };
 
-const createFilter = (queryString: string) => {
-  return (videoItem: LinkItem) => {
-    return (
-      videoItem.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
-    );
-  };
-};
-
-const handleSelectComplete = (item: any) => {
-  console.log(item);
+const handleSelectComplete = (item: Record<string, any>) => {
   router.push({ name: "Video", params: { id: item.link } });
   autocompleteRef.value?.blur();
 };
-
-watch(data, (data, oldData) => {
-  data?.videos?.map((video: any) => {
-    links.value.push({ value: video.title, link: video._id });
-  });
-});
 
 const keySpaceHandle = (e: KeyboardEvent) => {
   //Menu item element plus has trigger space key to handle menu item
@@ -72,10 +51,9 @@ const keySpaceHandle = (e: KeyboardEvent) => {
 };
 
 const handleSelectMenu = (key: string, keyPath: string[]) => {
-  // console.log(key, keyPath);
   switch (key) {
     case "menu-login":
-      if (userStore.name) router.push({ name: "VideoTable" });
+      if (userStore.userInfo) router.push({ name: "VideoTable" });
       else router.push({ name: "Login" });
       break;
     case "menu-subscribe":
@@ -102,15 +80,15 @@ const Logout = `
 const { execute } = useMutation(Logout);
 
 const onLogout = () => {
-  execute({ token: userStore.refresh_token }).then(({ data, error }) => {
-    userStore.logout();
-    localStorage.clear();
-    router.push("/login");
-  });
+  userStore.logout();
+  router.replace('/')
 };
 
 const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
-const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-512.png", "https://cdn-icons-png.flaticon.com/512/9181/9181358.png"]
+
+onMounted(() => {
+  fetchInitialResults();
+})
 </script>
 
 <template>
@@ -140,7 +118,7 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
           @keydown.space="keySpaceHandle" />
       </div>
       <div class="flex-grow" />
-      <el-menu-item v-if="userStore.roles.includes('admin')" index="menu-upload">
+      <el-menu-item v-if="userStore.userInfo?.roles?.includes('admin')" index="menu-upload">
         <el-icon>
           <Upload />
         </el-icon>
@@ -151,13 +129,13 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
             <MoreFilled />
           </el-icon>
         </template>
-        <el-menu-item v-if="userStore.name" index="menu-login">Hello, {{ userStore.name }}!</el-menu-item>
+        <el-menu-item v-if="userStore.userInfo" index="menu-login">Hello, {{ userStore.userInfo.name || userStore.userInfo.email }}!</el-menu-item>
         <el-menu-item v-else index="menu-login">Login</el-menu-item>
 
         <el-menu-item index="menu-subscribe">Followed channel</el-menu-item>
         <el-menu-item index="menu-watchlate">Watch later</el-menu-item>
         <el-menu-item index="menu-theme">Theme mode: {{ colorMode }}</el-menu-item>
-        <el-menu-item v-if="userStore.token" @click="onLogout" index="menu-logout">Logout</el-menu-item>
+        <el-menu-item v-if="userStore.userInfo" @click="onLogout" index="menu-logout">Logout</el-menu-item>
       </el-sub-menu>
     </el-menu>
   </el-header>
@@ -261,4 +239,3 @@ const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-5
   display: none;
 }
 </style>
-

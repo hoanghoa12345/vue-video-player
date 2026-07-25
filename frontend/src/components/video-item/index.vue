@@ -21,7 +21,7 @@ const props = defineProps<{ video: Video }>();
 <template>
   <div class="video-container">
     <router-link
-      :to="'/video/' + props.video._id"
+      :to="'/video/' + props.video.id"
       class="thumbnail"
       :aria-label="props.video.title"
       :title="props.video.title">
@@ -44,26 +44,26 @@ const props = defineProps<{ video: Video }>();
       </el-image>
     </router-link>
     <div class="video-bottom-section">
-      <router-link :to="`/channel/${props.video.uploadedBy._id}`">
-        <el-avatar :icon="UserFilled" />
+      <router-link :to="`/channel/${props.video.metadata.channel.id ?? '-'}`">        
+        <el-avatar :icon="UserFilled" :src="props.video.metadata.channel.avatar_image" />
       </router-link>
       <div class="video-details">
         <router-link
           type="primary"
-          :to="'/video/' + props.video._id"
+          :to="'/video/' + props.video.id"
           class="el-link el-link--primary link-title">
           {{ props.video.title }}
         </router-link>
         <router-link
           type="info"
-          :to="`/channel/${props.video.uploadedBy._id}`"
+          :to="`/channel/${props.video.metadata.channel.id}`"
           class="el-link el-link--info video-item__channel-name"
-          ><span>{{ props.video.uploadedBy.name }}</span></router-link
+          ><span>{{ props.video.metadata.channel.name}}</span></router-link
         >
         <div class="video-metadata el-link el-link--info">
-          <span>{{ props.video.views }} views</span>
+          <span>{{ props.video.metadata.play_times }} views</span>
           &nbsp; • &nbsp;
-          <span>{{ dayjs(+props.video.createdAt).fromNow() }}</span>
+          <span>{{ dayjs(props.video.created_at).fromNow() }}</span>
         </div>
       </div>
     </div>
@@ -104,6 +104,7 @@ img.placeholder {
   -webkit-box-orient: vertical;
   overflow: hidden;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   height: 2.6rem;
   text-overflow: ellipsis;
   color: var(--el-text-color-primary);

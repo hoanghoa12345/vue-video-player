@@ -1,14 +1,19 @@
 export interface Video {
-  _id: string;
+  id: string;
+  _id?: string;
+  slug: string;
   title: string;
   description: string;
-  uploadedBy: User;
+  uploadedBy?: User;
   filePath: string;
   duration: string;
   thumbnail: string;
   createdAt: string;
   privacy?: number;
   views: number;
+  created_at: Date;
+  metadata: Metadata;
+  created_by: string;
 }
 export interface VideoInput {
   title: string;
@@ -29,6 +34,9 @@ export interface User {
   profilePic: string;
   token: string;
   refresh_token: string;
+  sub: string;
+  picture: string;
+  email_verified: boolean;
 }
 
 export interface Comment {
@@ -37,4 +45,43 @@ export interface Comment {
   user: User;
   createdAt: string;
   replies?: Comment[];
+}
+
+export interface Objects<T = Video> {
+  objects: T[];
+  total: number;
+}
+
+export interface IObject {
+  object: Video;
+}
+
+export interface Metadata {
+  video_url: string;
+  video_description: string;
+  channel: Channel;
+  play_times: number;
+}
+
+export interface Channel {
+  id: string;
+  name: string;
+  description: string;
+  cover_image: string;
+  avatar_image: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface AppSettings {
+  metadata: {
+    config: {
+      pages: {
+        [key: string]: {
+          [key: string]: string;
+        };
+      };
+      backend_url: string;
+    };
+  };
 }

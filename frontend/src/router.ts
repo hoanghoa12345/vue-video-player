@@ -68,6 +68,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/login",
     component: () => import("@/pages/Login.vue"),
   },
+  {
+    name: "OAuthCallback",
+    path: "/oauth/callback",
+    component: () => import("@/pages/OAuthCallback.vue"),
+  },
 ];
 
 const router = createRouter({

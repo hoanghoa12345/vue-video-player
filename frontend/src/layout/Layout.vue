@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import Header from "./Header.vue";
-
+import Header from "./Header.vue";
 </script>
 
 <template>
@@ -19,6 +18,7 @@
 .text-center {
   text-align: center;
 }
+
 .el-container {
   flex-direction: column;
 }

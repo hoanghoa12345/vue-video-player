@@ -1,10 +1,13 @@
+import api from "@/services/api";
+import { AppSettings } from "@/utils/types";
 import { defineStore } from "pinia";
 
-export const useAppStore = defineStore({
-  id: "main-app",
+export const useAppStore = defineStore("main-app", {
   state: () => ({
     appTheme: "light",
     version: "1.0.0",
+    config: null as AppSettings | null,
+    initialize: false,
   }),
   actions: {
     toggleColorMode() {
@@ -24,6 +27,27 @@ export const useAppStore = defineStore({
         });
         if (htmlElClass.contains("dark")) htmlElClass.remove("dark");
       }
+    },
+    loadAppConfig() {
+      api
+        .getAppSettings()
+        .then((res) => {
+          this.config = res.data.objects[0];
+          this.initialize = true;
+        })
+        .catch((err) => {
+          this.initialize = false;
+          console.error(err);
+        });
+    },
+  },
+  getters: {
+    pageConfig: (state) => {
+      return (pageName: string) =>
+        state.config ? state.config.metadata.config.pages[pageName] : null;
+    },
+    backendUrl: (state) => {
+      return state.config?.metadata.config.backend_url;
     },
   },
 });
