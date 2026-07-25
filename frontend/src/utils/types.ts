@@ -34,6 +34,9 @@ export interface User {
   profilePic: string;
   token: string;
   refresh_token: string;
+  sub: string;
+  picture: string;
+  email_verified: boolean;
 }
 
 export interface Comment {

@@ -1,55 +1,48 @@
 import { defineStore } from "pinia";
 import { User } from "@/utils/types";
-let userInfo: User;
+let userInfo: User | null = null;
 const user = localStorage.getItem("userInfo");
+const accessToken = localStorage.getItem("access_token");
+const idToken = localStorage.getItem("id_token");
+const expiresIn = localStorage.getItem("expires_in");
 if (user) {
   userInfo = JSON.parse(user);
-} else {
-  userInfo = {
-    _id: "",
-    name: "",
-    email: "",
-    password: "",
-    roles: [""],
-    profilePic: "",
-    token: "",
-    refresh_token: "",
-  };
 }
-export const useUserStore = defineStore({
-  id: "user",
+
+export const useUserStore = defineStore("user", {
   state: () => ({
-    id: userInfo._id,
-    name: userInfo.name,
-    email: userInfo.email,
-    roles: userInfo.roles,
-    profilePic: userInfo.profilePic,
-    token: userInfo.token,
-    refresh_token: userInfo.refresh_token,
+    userInfo: userInfo,
+    accessToken: accessToken,
+    idToken: idToken,
+    expiresIn: expiresIn,
   }),
 
   actions: {
     logout() {
       this.$patch({
-        id: "",
-        name: "",
-        email: "",
-        roles: [],
-        profilePic: "",
-        token: "",
-        refresh_token: "",
+        userInfo: null,
+        accessToken: null,
+        idToken: null,
+        expiresIn: null,
       });
+      localStorage.clear();
     },
-    login(user: User) {
+    login(
+      userInfo: User,
+      accessToken: string,
+      idToken: string,
+      expiresIn: string
+    ) {
       this.$patch({
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        roles: user.roles,
-        profilePic: user.profilePic,
-        token: user.token,
-        refresh_token: user.refresh_token,
+        userInfo,
+        accessToken,
+        idToken,
+        expiresIn,
       });
+      localStorage.setItem("access_token", accessToken);
+      localStorage.setItem("id_token", idToken);
+      localStorage.setItem("expires_in", expiresIn);
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
     },
   },
 });

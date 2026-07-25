@@ -1,6 +1,7 @@
 <template>
   <router-view v-if="appStore.initialize" />
   <el-container v-else class="loading-screen">
+    <img class="logo__image--large" width="48" height="48" src="/images/logo.webp" alt="logo" />
     <div class="spinner" />
   </el-container>
 </template>
@@ -17,6 +18,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.logo__image--large {
+  width: 48px;
+  height: 48px;
+}
 .loading-screen {
   height: 100vh;
   display: flex;
@@ -27,11 +32,11 @@ onMounted(async () => {
   background-color: var(--el-bg-color);
 }
 .spinner {
-  border: 4px solid var(--el-fill-color-dark);
-  border-top: 4px solid var(--el-color-primary);
+  border: 2px solid var(--el-fill-color-dark);
+  border-top: 2px solid var(--el-color-primary);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 16px;
+  height: 16px;
   animation: spin 1s linear infinite;
 }
 @keyframes spin {

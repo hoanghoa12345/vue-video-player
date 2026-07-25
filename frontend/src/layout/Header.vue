@@ -51,10 +51,9 @@ const keySpaceHandle = (e: KeyboardEvent) => {
 };
 
 const handleSelectMenu = (key: string, keyPath: string[]) => {
-  // console.log(key, keyPath);
   switch (key) {
     case "menu-login":
-      if (userStore.name) router.push({ name: "VideoTable" });
+      if (userStore.userInfo) router.push({ name: "VideoTable" });
       else router.push({ name: "Login" });
       break;
     case "menu-subscribe":
@@ -81,15 +80,11 @@ const Logout = `
 const { execute } = useMutation(Logout);
 
 const onLogout = () => {
-  execute({ token: userStore.refresh_token }).then(({ data, error }) => {
-    userStore.logout();
-    localStorage.clear();
-    router.push("/login");
-  });
+  userStore.logout();
+  router.replace('/')
 };
 
 const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
-const clipParts = ["https://cdn3.iconfinder.com/data/icons/colour-flower/32/15-512.png", "https://cdn-icons-png.flaticon.com/512/9181/9181358.png"]
 
 onMounted(() => {
   fetchInitialResults();
@@ -123,7 +118,7 @@ onMounted(() => {
           @keydown.space="keySpaceHandle" />
       </div>
       <div class="flex-grow" />
-      <el-menu-item v-if="userStore.roles.includes('admin')" index="menu-upload">
+      <el-menu-item v-if="userStore.userInfo?.roles?.includes('admin')" index="menu-upload">
         <el-icon>
           <Upload />
         </el-icon>
@@ -134,13 +129,13 @@ onMounted(() => {
             <MoreFilled />
           </el-icon>
         </template>
-        <el-menu-item v-if="userStore.name" index="menu-login">Hello, {{ userStore.name }}!</el-menu-item>
+        <el-menu-item v-if="userStore.userInfo" index="menu-login">Hello, {{ userStore.userInfo.name || userStore.userInfo.email }}!</el-menu-item>
         <el-menu-item v-else index="menu-login">Login</el-menu-item>
 
         <el-menu-item index="menu-subscribe">Followed channel</el-menu-item>
         <el-menu-item index="menu-watchlate">Watch later</el-menu-item>
         <el-menu-item index="menu-theme">Theme mode: {{ colorMode }}</el-menu-item>
-        <el-menu-item v-if="userStore.token" @click="onLogout" index="menu-logout">Logout</el-menu-item>
+        <el-menu-item v-if="userStore.userInfo" @click="onLogout" index="menu-logout">Logout</el-menu-item>
       </el-sub-menu>
     </el-menu>
   </el-header>
