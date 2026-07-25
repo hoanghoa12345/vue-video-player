@@ -68,7 +68,7 @@ const emit = defineEmits({
 });
 
 const setUploadUser = () => {
-  form.uploadedBy = userStore.id;
+  form.uploadedBy = userStore.userInfo?._id!;
 };
 
 onMounted(() => {

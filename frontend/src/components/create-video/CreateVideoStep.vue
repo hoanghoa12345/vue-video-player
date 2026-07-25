@@ -204,13 +204,13 @@ watch(active, async (newValue) => {
 
 onMounted(() => {
   if (_.isEmpty(formdata.uploadedBy)) {
-    formdata.uploadedBy = userStore.id;
+    formdata.uploadedBy = userStore.userInfo?._id!;
   }
 });
 
 onUpdated(() => {
   if (_.isEmpty(formdata.uploadedBy)) {
-    formdata.uploadedBy = userStore.id;
+    formdata.uploadedBy = userStore.userInfo?._id!;
   }
 
   refVideo.value?.addEventListener("loadedmetadata", (event) => {
