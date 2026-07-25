@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { Env } from "../../types/env.ts";
+import { upsertUserAndAccount } from "../../db/queries/auth.ts";
 
 const app = new Hono<Env>();
 
@@ -81,6 +82,26 @@ app.post("/exchange", async (c) => {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
     const user = await userInfoRes.json();
+
+    // 4. Upsert user and account
+    const userData = {
+      name: user.name,
+      email: user.email,
+      emailVerified: user.email_verified,
+      image: user.picture,
+    };
+
+    const accountData = {
+      accountId: user.sub,
+      providerId: provider,
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      idToken: tokens.id_token,
+      accessTokenExpiresAt: tokens.expires_in,
+      refreshTokenExpiresAt: tokens.expires_in,
+      scope: tokens.scope,
+    };
+    await upsertUserAndAccount(userData, accountData);
 
     // 5. Return as secure httpOnly cookie or json
     // For SPA, set httpOnly cookie for refresh_token

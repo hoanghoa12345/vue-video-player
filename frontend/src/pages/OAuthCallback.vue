@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from "@/stores/app";
 import { useUserStore } from "@/stores/user";
-import { ElMessage } from "element-plus";
+import { ElLoading, ElMessage } from "element-plus";
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -19,6 +19,11 @@ onMounted(() => {
     if (code_verifier && state) {
       const backendUrl = appStore.backendUrl;
       if (backendUrl) {
+        const loading = ElLoading.service({
+          lock: true,
+          text: "Loading",
+          background: "rgba(0, 0, 0, 0.7)",
+        });
         fetch(`${backendUrl}/v1/oauth/exchange`, {
           method: "POST",
           headers: {
@@ -40,6 +45,8 @@ onMounted(() => {
                 } else {
                   const { access_token, id_token, expires_in, user } = data;
                   userStore.login(user, access_token, id_token, expires_in);
+                  sessionStorage.removeItem("code_verifier");
+                  sessionStorage.removeItem("state");
                   router.push("/");
                 }
               });
@@ -48,11 +55,13 @@ onMounted(() => {
                 "Oops, there was an error connecting to the server."
               );
             }
+            loading.close();
           })
           .catch(() => {
             ElMessage.error(
               "Oops, there was an error connecting to the server."
             );
+            loading.close();
           });
       } else {
         ElMessage.error("Oops, this feature is not supported yet.");

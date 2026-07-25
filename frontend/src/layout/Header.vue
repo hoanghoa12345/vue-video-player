@@ -3,7 +3,7 @@ import { Search, Upload, MoreFilled } from "@element-plus/icons-vue";
 import { ref, watch, computed, onMounted } from "vue";
 import { useMutation, useQuery } from "villus";
 import { useRouter } from "vue-router";
-import type { AutocompleteInstance } from "element-plus";
+import { ElMessage, type AutocompleteInstance } from "element-plus";
 import { useDark, useToggle } from "@vueuse/core";
 import { useUserStore } from "@/stores/user";
 import { useAppStore } from "@/stores/app";
@@ -82,6 +82,7 @@ const { execute } = useMutation(Logout);
 const onLogout = () => {
   userStore.logout();
   router.replace('/')
+  ElMessage.success("You have been logged out successfully.");
 };
 
 const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
