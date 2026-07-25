@@ -35,6 +35,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  likeVideo: [id: string];
-}>();
+  (e: 'likeVideo', id: string): void
+}>()
 </script>
