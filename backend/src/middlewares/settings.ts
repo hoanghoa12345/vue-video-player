@@ -1,5 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import { findAllSettings } from "../db/db.ts";
+import { APP_ENV, LOCAL_FRONTEND_URL } from "../lib/env.ts";
 
 // simple in-memory cache
 let cache: Record<string, any> | null = null;
@@ -14,6 +15,16 @@ async function loadAllSettings() {
   const map: Record<string, any> = {};
 
   for (const row of rows) {
+    if (APP_ENV === "development") {
+      if (row.key === "oauth2_redirect_uri") {
+        map[row.key] = `${LOCAL_FRONTEND_URL}/oauth/callback`;
+        continue;
+      }
+      if (row.key === "frontend_url") {
+        map[row.key] = LOCAL_FRONTEND_URL;
+        continue;
+      }
+    }
     switch (row.dataType) {
       case "boolean":
         map[row.key] = row.value === "true";
