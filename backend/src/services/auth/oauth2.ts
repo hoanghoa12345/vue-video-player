@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import type { Env } from "../../types/env.ts";
 import { upsertUserAndAccount } from "../../db/queries/auth.ts";
+import { getCookie, setCookie } from "hono/cookie";
+import { APP_ENV } from "../../lib/env.ts";
 
 const app = new Hono<Env>();
 
@@ -14,7 +16,9 @@ app.get("/url", async (c) => {
     response_type: "code",
     client_id: settings.oauth2_client_id,
     redirect_uri: settings.oauth2_redirect_uri,
-    scope: "openid profile email",
+    scope: "openid profile email offline_access",
+    access_type: "offline",
+    prompt: "consent",
     state: state,
     code_challenge: challenge,
     code_challenge_method: "S256",
@@ -70,7 +74,6 @@ app.post("/exchange", async (c) => {
     }
 
     const tokens = (await tokenRes.json()) as any;
-
     if (!tokenRes.ok) {
       console.error("token exchange failed", tokens);
       return c.json({ error: "token_exchange_failed", details: tokens }, 400);
@@ -105,6 +108,14 @@ app.post("/exchange", async (c) => {
 
     // 5. Return as secure httpOnly cookie or json
     // For SPA, set httpOnly cookie for refresh_token
+    setCookie(c, "refresh_token", tokens.refresh_token, {
+      httpOnly: true,
+      sameSite: APP_ENV === "development" ? "lax" : "none",
+      secure: APP_ENV === "development" ? false : true,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    });
+
     return c.json({
       access_token: tokens.access_token,
       id_token: tokens.id_token,
@@ -120,7 +131,10 @@ app.post("/exchange", async (c) => {
 // POST /oauth/refresh
 app.post("/refresh", async (c) => {
   const settings = c.get("settings");
-  const { refresh_token } = await c.req.json();
+  let { refresh_token } = await c.req.json();
+  if (!refresh_token) {
+    refresh_token = getCookie(c, "refresh_token");
+  }
   const res = await fetch(settings.oauth2_provider_token_url, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -131,8 +145,26 @@ app.post("/refresh", async (c) => {
       refresh_token,
     }),
   });
-  const data = await res.json();
-  return c.json(data, res.status as any);
+
+  if (res.ok) {
+    const data = await res.json();
+    // For SPA, set httpOnly cookie for refresh_token
+    setCookie(c, "refresh_token", data.refresh_token, {
+      httpOnly: true,
+      sameSite: APP_ENV === "development" ? "lax" : "none",
+      secure: APP_ENV === "development" ? false : true,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    });
+    const response = {
+      access_token: data.access_token,
+      id_token: data.id_token,
+      expires_in: data.expires_in,
+    };
+    return c.json(response, res.status as any);
+  } else {
+    return c.json({ error: "refresh_token_error" }, 400);
+  }
 });
 
 export default app;

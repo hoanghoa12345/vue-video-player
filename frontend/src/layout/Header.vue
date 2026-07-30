@@ -22,21 +22,31 @@ interface LinkItem {
   link: string;
 }
 
+const backendUrl = appStore.backendUrl;
+
 const fetchInitialResults = () => {
   // TODO
-}
+};
 
-const querySearchAsync = (queryString: string, cb: (arg: LinkItem[]) => void) => {
+const querySearchAsync = (
+  queryString: string,
+  cb: (arg: LinkItem[]) => void
+) => {
   if (queryString.length < 3) return;
-  api.searchVideosByKeyword(queryString).then((res) => {
-    if (res.data?.total > 0) {
-      const results = res.data.objects.map((item) => ({ value: item.title, link: item.id }))
-      cb(results);
-    }
-  }).catch(() => {
-    cb([{ value: 'Not found', link: '' }]);
-  })
-
+  api
+    .searchVideosByKeyword(queryString)
+    .then((res) => {
+      if (res.data?.total > 0) {
+        const results = res.data.objects.map((item) => ({
+          value: item.title,
+          link: item.id,
+        }));
+        cb(results);
+      }
+    })
+    .catch(() => {
+      cb([{ value: "Not found", link: "" }]);
+    });
 };
 
 const handleSelectComplete = (item: Record<string, any>) => {
@@ -81,25 +91,60 @@ const { execute } = useMutation(Logout);
 
 const onLogout = () => {
   userStore.logout();
-  router.replace('/')
+  router.replace("/");
   ElMessage.success("You have been logged out successfully.");
 };
 
 const colorMode = computed(() => (isDark.value ? "Dark" : "Light"));
 
+const retryTimes = ref(0);
+
+const fetchUserInfo = () => {
+  userStore
+    .loadUserInfo(backendUrl!)
+    .then((userInfo) => {})
+    .catch((err) => {
+      retryTimes.value++;
+      if (retryTimes.value > 1) {
+        console.error("Failed to load user info");
+        return;
+      }
+      console.error(err.error);
+      if (err?.code === 400) return;
+      userStore
+        .refreshToken(backendUrl!)
+        .then((data) => {})
+        .catch((err) => {
+          console.error(err.error);
+        });
+    });
+};
+
 onMounted(() => {
   fetchInitialResults();
-})
+  if (userStore.idToken) {
+    fetchUserInfo();
+  }
+});
 </script>
 
 <template>
   <el-header class="header">
-    <el-menu mode="horizontal" :ellipsis="false" menu-trigger="click" class="container items-center header-logo"
+    <el-menu
+      mode="horizontal"
+      :ellipsis="false"
+      menu-trigger="click"
+      class="container items-center header-logo"
       @select="handleSelectMenu">
       <el-menu-item index="0">
         <router-link to="/" class="logo__link">
           <div class="flex items-center logo" style="position: relative">
-            <img class="logo__image" width="32" height="32" src="/images/logo.webp" alt="logo" />
+            <img
+              class="logo__image"
+              width="32"
+              height="32"
+              src="/images/logo.webp"
+              alt="logo" />
             <!--img :src="clipParts[0]" style="
                 width: 16px;
                 height: 16px;
@@ -114,12 +159,19 @@ onMounted(() => {
       </el-menu-item>
       <div class="flex-grow" />
       <div index="1" class="search-box">
-        <el-autocomplete ref="autocompleteRef" v-model="state" :fetch-suggestions="querySearchAsync"
-          placeholder="Enter keyword to search" @select="handleSelectComplete" :suffix-icon="Search"
+        <el-autocomplete
+          ref="autocompleteRef"
+          v-model="state"
+          :fetch-suggestions="querySearchAsync"
+          placeholder="Enter keyword to search"
+          @select="handleSelectComplete"
+          :suffix-icon="Search"
           @keydown.space="keySpaceHandle" />
       </div>
       <div class="flex-grow" />
-      <el-menu-item v-if="userStore.userInfo?.roles?.includes('admin')" index="menu-upload">
+      <el-menu-item
+        v-if="userStore.userInfo?.roles?.includes('admin')"
+        index="menu-upload">
         <el-icon>
           <Upload />
         </el-icon>
@@ -130,20 +182,29 @@ onMounted(() => {
             <MoreFilled />
           </el-icon>
         </template>
-        <el-menu-item v-if="userStore.userInfo" index="menu-login">Hello, {{ userStore.userInfo.name || userStore.userInfo.email }}!</el-menu-item>
+        <el-menu-item v-if="userStore.userInfo" index="menu-login"
+          >Hello,
+          {{
+            userStore.userInfo.name || userStore.userInfo.email
+          }}!</el-menu-item
+        >
         <el-menu-item v-else index="menu-login">Login</el-menu-item>
 
         <el-menu-item index="menu-subscribe">Followed channel</el-menu-item>
         <el-menu-item index="menu-watchlate">Watch later</el-menu-item>
-        <el-menu-item index="menu-theme">Theme mode: {{ colorMode }}</el-menu-item>
-        <el-menu-item v-if="userStore.userInfo" @click="onLogout" index="menu-logout">Logout</el-menu-item>
+        <el-menu-item index="menu-theme"
+          >Theme mode: {{ colorMode }}</el-menu-item
+        >
+        <el-menu-item
+          v-if="userStore.userInfo"
+          @click="onLogout"
+          index="menu-logout"
+          >Logout</el-menu-item
+        >
       </el-sub-menu>
     </el-menu>
   </el-header>
 </template>
-
-
-
 
 <style>
 .el-menu--horizontal {
@@ -158,7 +219,7 @@ onMounted(() => {
   height: 5rem;
 }
 
-.header-logo.el-menu--horizontal>.el-menu-item.is-active {
+.header-logo.el-menu--horizontal > .el-menu-item.is-active {
   border-bottom: none;
 }
 
