@@ -47,6 +47,9 @@ export const useAppStore = defineStore("main-app", {
         state.config ? state.config.metadata.config.pages[pageName] : null;
     },
     backendUrl: (state) => {
+      if (import.meta.env.DEV) {
+        return import.meta.env.VITE_BACKEND_API_URL;
+      }
       return state.config?.metadata.config.backend_url;
     },
   },

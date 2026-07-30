@@ -5,7 +5,8 @@
     "npm:@libsql/client@~0.17.4": "0.17.4",
     "npm:drizzle-kit@*": "0.31.10",
     "npm:drizzle-kit@~0.31.10": "0.31.10",
-    "npm:drizzle-orm@~0.45.2": "0.45.2_@libsql+client@0.17.4"
+    "npm:drizzle-orm@~0.45.2": "0.45.2_@libsql+client@0.17.4",
+    "npm:jose@^6.2.4": "6.2.4"
   },
   "jsr": {
     "@hono/hono@4.12.30": {
@@ -623,6 +624,9 @@
         "resolve-pkg-maps"
       ]
     },
+    "jose@6.2.4": {
+      "integrity": "sha512-N8acGzVsQy6M/fjFcxtysNc4Q379TcM5dM/qKkNtsHFji88yANnXTr7BLeP75iPnFwBfQzM/jg2BZ9+HZrHCZA=="
+    },
     "js-base64@3.9.1": {
       "integrity": "sha512-U73qptcvf/HIOauFOmqT3a0mDUp0MYlfd15oqoe9kqZt5XhiXVb+HG09sLvI9PQ9tZIBFS4nlErai8zbWazP0g=="
     },
@@ -684,7 +688,8 @@
       "jsr:@hono/hono@^4.12.12",
       "npm:@libsql/client@~0.17.4",
       "npm:drizzle-kit@~0.31.10",
-      "npm:drizzle-orm@~0.45.2"
+      "npm:drizzle-orm@~0.45.2",
+      "npm:jose@^6.2.4"
     ]
   }
 }
