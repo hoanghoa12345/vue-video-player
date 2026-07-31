@@ -6,6 +6,6 @@ export type Env = {
   Variables: {
     settings: SettingsMap;
     settingsRaw: SelectSetting[];
-    user: { sub: string; email?: string; scope?: string };
+    user: { id?: string; sub: string; email?: string; name?: string };
   };
 };

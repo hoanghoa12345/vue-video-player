@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 
 import oauth2 from "./services/auth/oauth2.ts";
 import user from "./services/auth/user.ts";
+import videos from "./services/videos/videos.ts";
 import { loadSettings } from "./middlewares/settings.ts";
 import { requireAuth } from "./middlewares/auth.ts";
 
@@ -29,5 +30,7 @@ app.route("/v1/oauth", oauth2);
 app.use("/v1/*", requireAuth);
 
 app.route("/v1/user", user);
+
+app.route("/v1/videos", videos);
 
 Deno.serve(app.fetch);

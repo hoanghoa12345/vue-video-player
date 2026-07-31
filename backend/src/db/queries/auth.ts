@@ -95,3 +95,20 @@ export async function upsertUserAndAccount(
     return { user, account };
   });
 }
+
+export async function getUserBySub(sub: string) {
+  const [user] = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      emailVerified: users.emailVerified,
+      image: users.image,
+    })
+    .from(users)
+    .innerJoin(accounts, eq(users.id, accounts.userId))
+    .where(eq(accounts.accountId, sub))
+    .limit(1);
+
+  return user;
+}

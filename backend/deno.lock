@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@hono/hono@^4.12.12": "4.12.30",
+    "jsr:@hono/hono@^4.12.12": "4.12.31",
     "npm:@libsql/client@~0.17.4": "0.17.4",
     "npm:drizzle-kit@*": "0.31.10",
     "npm:drizzle-kit@~0.31.10": "0.31.10",
@@ -9,8 +9,8 @@
     "npm:jose@^6.2.4": "6.2.4"
   },
   "jsr": {
-    "@hono/hono@4.12.30": {
-      "integrity": "cd8e61aedab7e765e4e262728273ee0fdea3bc667af5eb6badd2772223b544fc"
+    "@hono/hono@4.12.31": {
+      "integrity": "6a31d6811a4e217ab7c59655e68f881372c39e191ace73e4aeed02fc1227185d"
     }
   },
   "npm": {

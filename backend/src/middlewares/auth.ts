@@ -1,6 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import { jwtVerify, createRemoteJWKSet } from "jose";
 import { Env } from "../types/env.ts";
+import { getUserBySub } from "../db/queries/auth.ts";
 
 // Global cache - lives for the lifetime of the worker / server
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
@@ -11,6 +12,24 @@ function getJWKS(url: string) {
     jwksCache.set(url, createRemoteJWKSet(new URL(url)));
   }
   return jwksCache.get(url)!;
+}
+
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: number;
+  image: string | null;
+};
+
+const userCache = new Map<string, { user: User; expiresAt: number }>();
+
+function getUser(sub: string) {
+  const cached = userCache.get(sub);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.user;
+  }
+  return null;
 }
 
 export const requireAuth = createMiddleware<Env>(async (c, next) => {
@@ -39,16 +58,37 @@ export const requireAuth = createMiddleware<Env>(async (c, next) => {
       audience: settings.oauth2_client_id, // e.g. your api identifier
     });
 
+    if (!payload.sub) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
+
+    const cached = userCache.get(payload.sub);
+    if (cached && cached.expiresAt > Date.now()) {
+      if (!cached.user.id) {
+        return c.json({ error: "Forbidden" }, 403);
+      }
+    } else {
+      const dbUser = await getUserBySub(payload.sub);
+      if (dbUser) {
+        userCache.set(payload.sub, {
+          user: dbUser,
+          expiresAt: Date.now() + 5 * 60 * 1000,
+        });
+      }
+    }
+
+    const user = getUser(payload.sub);
+
     // Attach user to context for downstream handlers
     c.set("user", {
+      id: user?.id,
       sub: payload.sub as string,
       email: payload.email as string,
-      scope: payload.scope as string,
+      name: payload.name as string,
     });
 
     await next();
   } catch (e) {
-    console.error("[OAuth2] Error verifying token", e);
     return c.json({ error: "Invalid or expired token" }, 401);
   }
 });
